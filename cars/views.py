@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Car
 from .serializers import CarSerializer
@@ -9,3 +9,8 @@ class CarViewSet(viewsets.ModelViewSet):
     serializer_class = CarSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = CarFilter
+
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
