@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_delete, pre_save
+from django.dispatch import receiver
+import os
 
 class Brand(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Марка")
@@ -38,3 +41,25 @@ class Car(models.Model):
     class Meta:
         verbose_name = "Автомобиль"
         verbose_name_plural = "Автомобили"
+
+@receiver(post_delete, sender=Car)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)
+
+# Удаление старого файла при обновлении на новый
+@receiver(pre_save, sender=Car)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = sender.objects.get(pk=instance.pk).image
+    except sender.DoesNotExist:
+        return False
+
+    new_file = instance.image
+    if not old_file == new_file:
+        if old_file and os.path.isfile(old_file.path):
+            os.remove(old_file.path)
