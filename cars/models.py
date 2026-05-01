@@ -1,8 +1,29 @@
 from django.db import models
 
+class Brand(models.Model):
+    name = models.CharField(max_length=50, unique=True, verbose_name="Марка")
+
+    class Meta:
+        verbose_name = "Марка"
+        verbose_name_plural = "Марки"
+
+    def __str__(self):
+        return self.name
+
+class CarModel(models.Model):
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='models', verbose_name="Марка")
+    name = models.CharField(max_length=100, verbose_name="Модель")
+
+    class Meta:
+        verbose_name = "Модель автомобиля"
+        verbose_name_plural = "Модели автомобилей"
+
+    def __str__(self):
+        return f"{self.brand.name} {self.name}"
+
 class Car(models.Model):
-    brand = models.CharField(max_length=50, verbose_name="Марка")
-    model_name = models.CharField(max_length=100, verbose_name="Модель")
+    # Теперь здесь ForeignKey вместо CharField
+    car_model = models.ForeignKey(CarModel, on_delete=models.PROTECT, verbose_name="Модель")
     year = models.PositiveIntegerField(verbose_name="Год выпуска")
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Цена")
     mileage = models.PositiveIntegerField(verbose_name="Пробег (км)")
@@ -10,7 +31,7 @@ class Car(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
     def __str__(self):
-        return f"{self.brand} {self.model_name} ({self.year})"
+        return f"{self.car_model} ({self.year})"
 
     class Meta:
         verbose_name = "Автомобиль"
