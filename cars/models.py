@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Brand(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Марка")
@@ -22,7 +23,7 @@ class CarModel(models.Model):
         return f"{self.brand.name} {self.name}"
 
 class Car(models.Model):
-    # Теперь здесь ForeignKey вместо CharField
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cars', verbose_name="Сотрудник")
     car_model = models.ForeignKey(CarModel, on_delete=models.PROTECT, verbose_name="Модель")
     year = models.PositiveIntegerField(verbose_name="Год выпуска")
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Цена")
