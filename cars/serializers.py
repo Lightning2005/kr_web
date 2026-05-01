@@ -9,7 +9,7 @@ class CarSerializer(serializers.ModelSerializer):
         model = Car
         fields = ['id', 'brand', 'model_name', 'car_model', 'year', 'price',
                   'mileage', 'description', 'owner', 'image', 'created_at']
-
+        read_only_fields = ['owner', 'created_at']
         extra_kwargs = {
             'owner': {'read_only': True}
         }

@@ -1,8 +1,10 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.db.models.signals import post_delete, pre_save
-from django.dispatch import receiver
 import os
+from django.db import models
+from django.dispatch import receiver
+from django.core.exceptions import ValidationError
+from django.db.models.signals import post_delete, pre_save
+from django.contrib.auth.models import User
+
 
 class Brand(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Марка")
@@ -25,6 +27,12 @@ class CarModel(models.Model):
     def __str__(self):
         return f"{self.brand.name} {self.name}"
 
+def validate_image_size(fieldfile_obj):
+    filesize = fieldfile_obj.size
+    megabyte_limit = 2.0
+    if filesize > megabyte_limit * 1024 * 1024:
+        raise ValidationError(f"Максимальный размер файла {megabyte_limit}MB")
+
 class Car(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cars', verbose_name="Сотрудник")
     car_model = models.ForeignKey(CarModel, on_delete=models.PROTECT, verbose_name="Модель")
@@ -32,7 +40,7 @@ class Car(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Цена")
     mileage = models.PositiveIntegerField(verbose_name="Пробег (км)")
     description = models.TextField(blank=True, verbose_name="Описание")
-    image = models.ImageField(upload_to='cars_photos/', blank=True, null=True, verbose_name="Фотография")
+    image = models.ImageField(upload_to='cars_photos/', blank=True, null=True, verbose_name="Фотография", validators=[validate_image_size])
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
     def __str__(self):
