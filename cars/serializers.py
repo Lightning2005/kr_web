@@ -7,11 +7,9 @@ class CarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Car
-        # Убедись, что 'owner' есть в списке fields
-        fields = ['id', 'brand', 'model_name', 'car_model', 'year', 'price', 'mileage', 'description', 'owner',
-                  'created_at']
+        fields = ['id', 'brand', 'model_name', 'car_model', 'year', 'price',
+                  'mileage', 'description', 'owner', 'image', 'created_at']
 
-        # Делаем поле 'owner' только для чтения
         extra_kwargs = {
             'owner': {'read_only': True}
         }

@@ -29,6 +29,7 @@ class Car(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Цена")
     mileage = models.PositiveIntegerField(verbose_name="Пробег (км)")
     description = models.TextField(blank=True, verbose_name="Описание")
+    image = models.ImageField(upload_to='cars_photos/', blank=True, null=True, verbose_name="Фотография")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
 
     def __str__(self):
