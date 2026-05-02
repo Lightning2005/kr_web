@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api'; // ИСПОЛЬЗУЕМ ТВОЙ API
 import CarCard from '../components/CarCard';
 
 function Home() {
@@ -8,9 +8,15 @@ function Home() {
   const brands = ['Lada (ВАЗ)', 'Nissan', 'Toyota', 'BMW', 'Mercedes-Benz', 'Hyundai', 'Kia', 'Ford'];
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/cars/')
-      .then(res => setFeaturedCars(res.data.slice(0, 4)))
-      .catch(err => console.error(err));
+    api.get('cars/') // Убираем полный URL, оставляем только путь
+      .then(res => {
+        // Проверяем, есть ли поле results (если на беке пагинация) или это просто массив
+        const data = res.data.results || res.data;
+        if (Array.isArray(data)) {
+          setFeaturedCars(data.slice(0, 4));
+        }
+      })
+      .catch(err => console.error("Ошибка на главной:", err));
   }, []);
 
   return (
