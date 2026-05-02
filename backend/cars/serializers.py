@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Car, CarImage, Brand, CarModel
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class CarImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,3 +31,18 @@ class CarModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarModel
         fields = ['id', 'brand','brand_name', 'name']
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Добавляем статус персонала в сам зашифрованный токен (payload)
+        token['is_staff'] = user.is_staff
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Добавляем данные в открытый JSON ответ, чтобы фронт их сразу увидел
+        data['is_staff'] = self.user.is_staff
+        data['username'] = self.user.username
+        return data

@@ -3,6 +3,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Car, Brand, CarModel
 from .serializers import CarSerializer, BrandSerializer, CarModelSerializer
 from .filters import CarFilter
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer
+
 
 class CarViewSet(viewsets.ModelViewSet):
     queryset = Car.objects.all()
@@ -24,3 +27,6 @@ class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CarModelSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['brand']
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
