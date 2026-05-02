@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Car, CarImage
+from .models import Car, CarImage, Brand, CarModel
 
 class CarImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,3 +19,13 @@ class CarSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'owner': {'read_only': True}
         }
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ['id', 'name']
+
+class CarModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarModel
+        fields = ['id', 'brand', 'name']
