@@ -5,13 +5,22 @@ from .serializers import CarSerializer, BrandSerializer, CarModelSerializer
 from .filters import CarFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import MyTokenObtainPairSerializer
+from rest_framework import filters
 
 
 class CarViewSet(viewsets.ModelViewSet):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter,
+        filters.SearchFilter
+    ]
     filterset_class = CarFilter
+
+    search_fields = ['car_model__name', 'description']
+    ordering_fields = ['price', 'year', 'mileage']
+    ordering = ['-created_at']
 
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
