@@ -6,7 +6,6 @@ function CarCard({ car }) {
   const [currentImg, setCurrentImg] = useState(0);
   const navigate = useNavigate();
 
-  // Проверка: админ ли смотрит каталог?
   const isAdmin = !!localStorage.getItem('userAuth');
 
   return (
@@ -15,18 +14,6 @@ function CarCard({ car }) {
       onClick={() => navigate(`/car/${car.id}`)}
       onMouseLeave={() => setCurrentImg(0)}
     >
-      {/* Кнопка быстрого редактирования для админа */}
-      {isAdmin && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/edit-car/${car.id}`);
-          }}
-          className="absolute top-3 right-3 z-30 bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-lg border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600 hover:text-white"
-        >
-          <span className="text-xs font-bold uppercase px-2">Изменить</span>
-        </button>
-      )}
 
       <div className="relative h-48 bg-gray-100">
         <img
