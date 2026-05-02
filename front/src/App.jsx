@@ -7,6 +7,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Dashboard from './pages/Dashboard';
 import AddCar from './pages/AddCar';
+import EditCar from './pages/EditCar';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="/car/:id" element={<CarDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/edit-car/:id" element={<EditCar />} />
             <Route path="/add-car" element={<AddCar />} />
           </Routes>
         </main>
