@@ -12,66 +12,92 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
-      // Отправляем запрос на получение токена
-      // Если у бэка другой путь (например 'login/'), замени здесь
       const response = await api.post('token/', {
         username: username,
         password: password
       });
 
-      console.log("Ответ сервера:", response.data); // Посмотри в консоли структуру
-
-      // Проверяем наличие access токена в ответе
       if (response.data && response.data.access) {
         localStorage.setItem('access', response.data.access);
-
-        // userAuth оставляем только для отображения имени "admin"
+        localStorage.setItem('refresh', response.data.refresh);
         localStorage.setItem('userAuth', btoa(`${username}:${password}`));
-
-        navigate('/dashboard');
+        navigate('/catalog');
       } else {
         setError('Сервер не вернул токен доступа.');
       }
     } catch (err) {
-      console.error("Детали ошибки входа:", err.response?.data);
       setError(err.response?.data?.detail || 'Неверный логин или пароль');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handleLogin} className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-black mb-6 text-center italic tracking-tighter">
-          DRIVE<span className="text-blue-600">SELECT</span>
-        </h2>
-        <p className="text-center text-gray-400 mb-8 font-bold text-sm uppercase">Вход для персонала</p>
+    /*
+       Используем min-h-[calc(100vh-header_height-footer_height)].
+       Учитывая py-20 и h-24, нам нужно вычесть около 400px,
+       чтобы футер поднялся в зону видимости.
+    */
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-450px)] px-4">
+
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-10 rounded-[40px] shadow-2xl w-full max-w-md border border-gray-50 mt-10 transition-all"
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-black text-gray-900 tracking-tighter uppercase italic">
+            DRIVE<span className="text-blue-600">SELECT</span>
+          </h2>
+          <p className="text-gray-400 mt-2 font-black text-[9px] uppercase tracking-[0.3em]">
+            Вход для персонала
+          </p>
+        </div>
 
         {error && (
-          <div className="bg-red-50 text-red-500 p-4 rounded-xl mb-6 text-center text-sm border border-red-100 font-bold">
+          <div className="bg-red-50 text-red-500 p-4 rounded-2xl mb-6 text-center text-[10px] border border-red-100 font-bold uppercase">
             {error}
           </div>
         )}
 
         <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Логин"
-            className="w-full p-4 border border-gray-100 rounded-xl outline-none focus:border-blue-500 bg-gray-50 transition-all"
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Пароль"
-            className="w-full p-4 border border-gray-100 rounded-xl outline-none focus:border-blue-500 bg-gray-50 transition-all"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" className="w-full bg-blue-600 text-white p-4 rounded-xl font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30">
-            ВОЙТИ В СИСТЕМУ
+          <div>
+            <label className="ml-4 font-black uppercase text-[9px] text-gray-400 tracking-widest">Логин</label>
+            <input
+              type="text"
+              placeholder="admin"
+              className="w-full p-4 bg-[#eff4ff] border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold mt-1 text-gray-900 placeholder-gray-400"
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="ml-4 font-black uppercase text-[9px] text-gray-400 tracking-widest">Пароль</label>
+            <input
+              type="password"
+              placeholder="•••••"
+              className="w-full p-4 bg-[#eff4ff] border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold mt-1 text-gray-900 placeholder-gray-400"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white p-5 rounded-2xl font-black uppercase text-[11px] tracking-widest hover:bg-gray-900 transition-all shadow-xl shadow-blue-500/20 mt-6 active:scale-95"
+          >
+            Войти в систему
           </button>
         </div>
+
+        <p className="text-center mt-10 text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">
+          © 2026 DRIVE<span className="text-blue-500/50">SELECT</span> SYSTEMS
+        </p>
       </form>
+
+      {/*
+          ХАК: Если в твоем Footer.jsx прописан mt-20, он всегда будет толкать футер вниз.
+          Добавляем невидимый распорку, чтобы компенсировать это, либо убедись,
+          что в файле App.jsx контент обернут в flex-grow.
+      */}
     </div>
   );
 }
