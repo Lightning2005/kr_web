@@ -50,6 +50,19 @@ class Car(models.Model):
         verbose_name = "Автомобиль"
         verbose_name_plural = "Автомобили"
 
+class CarImage(models.Model):
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='images', verbose_name="Автомобиль")
+    image = models.ImageField(upload_to='cars_photos/gallery/', verbose_name="Доп. фото", validators=[validate_image_size])
+
+    class Meta:
+        verbose_name = "Фотография галереи"
+        verbose_name_plural = "Фотографии галереи"
+
+@receiver(post_delete, sender=CarImage)
+def delete_car_image_on_delete(sender, instance, **kwargs):
+    if instance.image and os.path.isfile(instance.image.path):
+        os.remove(instance.image.path)
+
 @receiver(post_delete, sender=Car)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
     if instance.image:
