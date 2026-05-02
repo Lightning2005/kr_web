@@ -22,3 +22,5 @@ class BrandViewSet(viewsets.ReadOnlyModelViewSet):
 class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CarModel.objects.all()
     serializer_class = CarModelSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['brand']

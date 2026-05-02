@@ -1,75 +1,111 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
-data.append('owner', 1);
-
 function AddCar() {
   const navigate = useNavigate();
+  const [brands, setBrands] = useState([]);
+  const [models, setModels] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState('');
+
   const [formData, setFormData] = useState({
-    brand: '',
-    model_name: '',
+    car_model: '', // Сюда пойдет ID модели
     year: '',
     price: '',
     mileage: ''
   });
   const [image, setImage] = useState(null);
 
+  // 1. Загружаем бренды при старте
+  useEffect(() => {
+    api.get('brands/').then(res => setBrands(res.data));
+  }, []);
+
+  // 2. Загружаем модели, когда выбрана конкретная марка
+  useEffect(() => {
+    if (selectedBrand) {
+      api.get(`carmodels/?brand=${selectedBrand}`).then(res => setModels(res.data));
+    } else {
+      setModels([]);
+    }
+  }, [selectedBrand]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const authData = localStorage.getItem('userAuth');
 
-    // ТЗ требует multipart/form-data для передачи фото
     const data = new FormData();
-    data.append('brand', formData.brand);
-    data.append('model_name', formData.model_name);
-    data.append('year', formData.year);
-    data.append('price', formData.price);
-    data.append('mileage', formData.mileage);
+    // Бэкенд ждет ID модели (целое число)
+    data.append('car_model', parseInt(formData.car_model));
+    data.append('year', parseInt(formData.year));
+    data.append('price', parseFloat(formData.price));
+    data.append('mileage', parseInt(formData.mileage));
     if (image) data.append('image', image);
 
     try {
-      const authData = localStorage.getItem('userAuth');
       await api.post('cars/', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          // Обязательно передаем авторизацию здесь
           'Authorization': `Basic ${authData}`
         }
       });
-      alert('Автомобиль успешно добавлен!');
+      alert('Успешно опубликовано!');
       navigate('/');
     } catch (err) {
-      console.error(err);
-      alert('Ошибка при добавлении. Проверь консоль.');
+      // Выведи в консоль точный ответ сервера, чтобы понять причину
+      console.error("Server Response:", err.response?.data);
+      alert('Ошибка при добавлении. Посмотри детали в консоли (F12)');
     }
   };
 
   return (
-    <div className="max-w-[600px] mx-auto p-10">
-      <h1 className="text-2xl font-bold mb-6 text-center">ДОБАВИТЬ АВТО</h1>
+    <div className="max-w-[500px] mx-auto p-10 bg-white shadow-xl mt-10 rounded-2xl">
+      <h1 className="text-2xl font-black mb-6 text-center tracking-tighter">НОВОЕ ОБЪЯВЛЕНИЕ</h1>
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="text" placeholder="Марка" required className="w-full p-2 border"
-          onChange={e => setFormData({...formData, brand: e.target.value})} />
+        {/* Выбор марки */}
+        <select
+          className="w-full p-3 border rounded-xl"
+          onChange={(e) => {
+            setSelectedBrand(e.target.value);
+            setFormData({...formData, car_model: ''}); // Сброс модели при смене марки
+          }}
+          required
+        >
+          <option value="">Выберите марку</option>
+          {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+        </select>
 
-        <input type="text" placeholder="Модель" required className="w-full p-2 border"
-          onChange={e => setFormData({...formData, model_name: e.target.value})} />
+        {/* Выбор модели (активен только после марки) */}
+        <select
+          className="w-full p-3 border rounded-xl disabled:bg-gray-50"
+          disabled={!selectedBrand}
+          value={formData.car_model}
+          onChange={(e) => setFormData({...formData, car_model: e.target.value})}
+          required
+        >
+          <option value="">Выберите модель</option>
+          {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
 
-        <div className="grid grid-cols-3 gap-2">
-          <input type="number" placeholder="Год" required className="p-2 border"
+        <div className="grid grid-cols-2 gap-4">
+          <input type="number" placeholder="Год" className="p-3 border rounded-xl" required
             onChange={e => setFormData({...formData, year: e.target.value})} />
-          <input type="number" placeholder="Цена" required className="p-2 border"
-            onChange={e => setFormData({...formData, price: e.target.value})} />
-          <input type="number" placeholder="Пробег" required className="p-2 border"
+          <input type="number" placeholder="Пробег" className="p-3 border rounded-xl" required
             onChange={e => setFormData({...formData, mileage: e.target.value})} />
         </div>
 
-        <div className="border p-4 bg-gray-50">
-          <p className="text-sm mb-2 text-gray-500 text-center uppercase font-bold">Выберите фото</p>
-          <input type="file" accept="image/*" required className="w-full"
+        <input type="number" placeholder="Цена (₽)" className="w-full p-3 border rounded-xl font-bold" required
+          onChange={e => setFormData({...formData, price: e.target.value})} />
+
+        <div className="border-2 border-dashed border-gray-200 p-6 rounded-xl text-center">
+          <input type="file" accept="image/*" required
             onChange={e => setImage(e.target.files[0])} />
         </div>
 
-        <button type="submit" className="w-full bg-green-600 text-white p-3 font-bold hover:bg-green-700">
-          СОХРАНИТЬ В КАТАЛОГ
+        <button type="submit" className="w-full bg-blue-600 text-white p-4 rounded-xl font-black hover:bg-blue-700 active:scale-95 transition-all">
+          ОПУБЛИКОВАТЬ
         </button>
       </form>
     </div>

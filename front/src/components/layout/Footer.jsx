@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 
 function Footer() {
-  // Добавляем проверку авторизации и сюда
   const isAuth = !!localStorage.getItem('userAuth');
 
   return (
@@ -16,17 +15,25 @@ function Footer() {
             <p className="text-gray-500 text-sm">Курсовая работа • 2026</p>
           </div>
 
-          {/* Центральная колонка (Навигация) */}
+          {/* Центральная колонка */}
           <div>
             <h4 className="font-bold text-gray-900 mb-4 uppercase text-xs tracking-widest">Навигация</h4>
             <ul className="space-y-2 text-sm text-gray-600">
               <li><Link to="/" className="hover:text-blue-600">Каталог автомобилей</Link></li>
 
-              {/* Если НЕ авторизован — показываем вход */}
+              {/* Ссылка на вход теперь живет здесь */}
               {!isAuth ? (
-                <li><Link to="/login" className="hover:text-blue-600">Вход для персонала</Link></li>
+                <li>
+                  <Link to="/login" className="text-gray-400 hover:text-blue-600 transition-colors">
+                    Вход для персонала
+                  </Link>
+                </li>
               ) : (
-                <li><Link to="/dashboard" className="hover:text-blue-600 font-bold text-blue-600">Панель управления</Link></li>
+                <li>
+                  <Link to="/dashboard" className="text-blue-600 font-bold hover:underline">
+                    Панель управления
+                  </Link>
+                </li>
               )}
             </ul>
           </div>

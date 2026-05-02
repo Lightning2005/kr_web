@@ -25,7 +25,7 @@ function CarDetail() {
   if (!car) return <div className="p-10 text-center">Автомобиль не найден</div>;
 
   // Объединяем фото для галереи
-  const allPhotos = [car.image, ...(car.images?.map(img => img.image) || [])];
+  const allPhotos = car ? [car.image, ...car.images.map(img => img.image)] : [];
 
   return (
     <div className="max-w-[1200px] mx-auto p-6">
