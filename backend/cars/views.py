@@ -1,12 +1,9 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Car, Brand, CarModel
-from .serializers import CarSerializer, BrandSerializer, CarModelSerializer
+from .models import Car, Brand, CarModel, CarImage  # Добавил CarImage
+from .serializers import CarSerializer, BrandSerializer, CarModelSerializer, MyTokenObtainPairSerializer
 from .filters import CarFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer
-from rest_framework import filters
-
 
 class CarViewSet(viewsets.ModelViewSet):
     queryset = Car.objects.all()
@@ -25,7 +22,23 @@ class CarViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        # Сохраняем машину и назначаем владельца
+        instance = serializer.save(owner=self.request.user)
+        # Логика для галереи при создании
+        self._handle_images(instance)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Логика для галереи при редактировании (PATCH)
+        self._handle_images(instance)
+        return super().partial_update(request, *args, **kwargs)
+
+    def _handle_images(self, instance):
+        """Вспомогательный метод для обработки новых изображений"""
+        new_images = self.request.FILES.getlist('new_images')
+        if new_images:
+            for image in new_images:
+                CarImage.objects.create(car=instance, image=image)
 
 class BrandViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Brand.objects.all()
