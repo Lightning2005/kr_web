@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home'; // Новый импорт
 import Catalog from './pages/Catalog';
 import CarDetail from './pages/CarDetail';
 import Login from './pages/Login';
@@ -11,21 +12,19 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Шапка сайта */}
         <Header />
-
-        {/* Контентная часть */}
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<Catalog />} />
+            {/* Теперь на главной странице будет лендинг */}
+            <Route path="/" element={<Home />} />
+            {/* Каталог выносим на отдельный адрес */}
+            <Route path="/catalog" element={<Catalog />} />
             <Route path="/car/:id" element={<CarDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/add-car" element={<AddCar />} />
           </Routes>
         </main>
-
-        {/* Подвал сайта */}
         <Footer />
       </div>
     </Router>
