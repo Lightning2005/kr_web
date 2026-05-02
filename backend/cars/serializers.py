@@ -26,6 +26,7 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class CarModelSerializer(serializers.ModelSerializer):
+    brand_name = serializers.CharField(source='brand.name', read_only=True)
     class Meta:
         model = CarModel
-        fields = ['id', 'brand', 'name']
+        fields = ['id', 'brand','brand_name', 'name']

@@ -12,7 +12,7 @@ function Header() {
         </Link>
 
         <nav className="flex items-center gap-8">
-          <Link to="/" className="font-medium hover:text-blue-600 transition-colors">Каталог</Link>
+          <Link to="./catalog" className="font-medium hover:text-blue-600 transition-colors">Каталог</Link>
 
           {/* Кнопка видна ТОЛЬКО если пользователь вошел */}
           {isAuth && (

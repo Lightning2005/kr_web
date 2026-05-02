@@ -59,7 +59,6 @@ function CarCard({ car }) {
           <span className="text-xl font-black text-gray-900">
             {Number(car.price).toLocaleString()} ₽
           </span>
-          <span className="text-blue-600 font-semibold text-sm hover:underline">Подробнее</span>
         </div>
       </div>
     </div>

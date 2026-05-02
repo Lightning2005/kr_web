@@ -10,6 +10,8 @@ class CarFilter(filters.FilterSet):
     min_year = django_filters.NumberFilter(field_name="year", lookup_expr='gte')
     max_year = django_filters.NumberFilter(field_name="year", lookup_expr='lte')
 
+    brand_name = filters.CharFilter(field_name="car_model__brand__name", lookup_expr='iexact')
+
     class Meta:
         model = Car
-        fields = ['car_model__brand', 'car_model', 'year', 'min_year', 'max_year']
+        fields = ['car_model__brand', 'car_model', 'year', 'min_year', 'max_year', 'brand_name']
