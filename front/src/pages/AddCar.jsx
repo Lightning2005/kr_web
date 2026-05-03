@@ -1,146 +1,145 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 function AddCar() {
   const navigate = useNavigate();
-  const [brands, setBrands] = useState([]);
-  const [models, setModels] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
+    brand: '',
     car_model: '',
     year: '',
     price: '',
-    mileage: ''
+    mileage: '',
+    city: 'Москва',
+    address: '',
+    description: ''
   });
   const [image, setImage] = useState(null);
 
-  useEffect(() => {
-    api.get('brands/')
-      .then(res => {
-        const data = res.data.results || res.data;
-        setBrands(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Ошибка загрузки брендов:", err);
-        setLoading(false);
-      });
-  }, []);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const data = new FormData();
 
-  useEffect(() => {
-    if (selectedBrand) {
-      api.get(`carmodels/?brand=${selectedBrand}`)
-        .then(res => {
-          const data = res.data.results || res.data;
-          setModels(Array.isArray(data) ? data : []);
-        })
-        .catch(err => console.error("Ошибка загрузки моделей:", err));
-    } else {
-      setModels([]);
-    }
-  }, [selectedBrand]);
+        // ВАЖНО: используем ключи, которые прописали в сериализаторе
+        data.append('brand', formData.brand);
+        data.append('car_model_name', formData.car_model); // поменяли ключ на car_model_name
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const authData = localStorage.getItem('userAuth');
-    const data = new FormData();
-    data.append('car_model', parseInt(formData.car_model));
-    data.append('year', parseInt(formData.year));
-    data.append('price', parseFloat(formData.price));
-    data.append('mileage', parseInt(formData.mileage));
-    if (image) data.append('image', image);
+        data.append('year', parseInt(formData.year));
+        data.append('price', parseFloat(formData.price));
+        data.append('mileage', parseInt(formData.mileage));
+        data.append('city', formData.city);
+        data.append('address', formData.address);
+        data.append('description', formData.description);
 
-    try {
-      await api.post('cars/', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Basic ${authData}`
+        if (image) data.append('image', image);
+
+        try {
+          await api.post('cars/', data);
+          alert('Успешно опубликовано!');
+          navigate('/dashboard');
+        } catch (err) {
+          console.error("Server Response:", err.response?.data);
+          alert('Ошибка: ' + JSON.stringify(err.response?.data));
         }
-      });
-      alert('Успешно опубликовано!');
-      navigate('/dashboard');
-    } catch (err) {
-      console.error("Server Response:", err.response?.data);
-      alert('Ошибка при добавлении.');
-    }
-  };
-
-  if (loading) return (
-    <div className="flex justify-center items-center min-h-screen">
-      <p className="font-black uppercase tracking-widest text-gray-400">Загрузка...</p>
-    </div>
-  );
+      };
 
   return (
-    /* Добавили pb-24 чтобы футер не обрезался и контент дышал */
     <div className="max-w-[900px] mx-auto p-6 md:p-10 pb-24">
 
       <div className="text-center mb-12">
-        <button onClick={() => navigate(-1)} className="text-blue-600 font-black uppercase text-[10px] tracking-widest mb-4 hover:underline transition-all">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-blue-600 font-black uppercase text-[10px] tracking-widest mb-4 hover:underline transition-all"
+        >
           ← Назад в панель управления
         </button>
         <h1 className="text-5xl font-black uppercase tracking-tighter text-gray-900">Новое объявление</h1>
       </div>
 
-      {/* Основная форма */}
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-100 p-8 md:p-16 rounded-[60px] shadow-2xl shadow-blue-500/5 space-y-12 mb-16">
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-100 p-8 md:p-16 rounded-[60px] shadow-2xl shadow-blue-500/5 space-y-10 mb-16">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          <div className="space-y-4 text-left">
+        {/* МАРКА И МОДЕЛЬ (ТЕКСТОВЫЕ ПОЛЯ) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-3">
             <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Марка автомобиля</label>
-            <select
-              className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 focus:ring-0 transition-all cursor-pointer appearance-none text-gray-700"
-              value={selectedBrand}
-              onChange={(e) => {
-                setSelectedBrand(e.target.value);
-                setFormData({...formData, car_model: ''});
-              }}
+            <input
+              type="text"
+              placeholder="Например: Ford"
+              className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all text-gray-700"
               required
-            >
-              <option value="">Выберите марку</option>
-              {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
+              value={formData.brand}
+              onChange={e => setFormData({...formData, brand: e.target.value})}
+            />
           </div>
 
-          <div className="space-y-4 text-left">
+          <div className="space-y-3">
             <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Модель</label>
-            <select
-              className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 focus:ring-0 transition-all disabled:opacity-40 appearance-none text-gray-700"
-              disabled={!selectedBrand}
-              value={formData.car_model}
-              onChange={(e) => setFormData({...formData, car_model: e.target.value})}
+            <input
+              type="text"
+              placeholder="Например: Focus"
+              className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all text-gray-700"
               required
-            >
-              <option value="">Выберите модель</option>
-              {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
+              value={formData.car_model}
+              onChange={e => setFormData({...formData, car_model: e.target.value})}
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div className="space-y-4 text-left">
+        {/* ЧИСЛОВЫЕ ПОЛЯ */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-3">
             <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Год выпуска</label>
             <input type="number" placeholder="2024" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
+              value={formData.year}
               onChange={e => setFormData({...formData, year: e.target.value})} />
           </div>
-          <div className="space-y-4 text-left">
+          <div className="space-y-3">
             <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Пробег (км)</label>
             <input type="number" placeholder="0" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
+              value={formData.mileage}
               onChange={e => setFormData({...formData, mileage: e.target.value})} />
           </div>
-          <div className="space-y-4 text-left">
+          <div className="space-y-3">
             <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Цена (₽)</label>
             <input type="number" placeholder="0" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold text-blue-600 focus:bg-white focus:border-blue-600 transition-all" required
+              value={formData.price}
               onChange={e => setFormData({...formData, price: e.target.value})} />
           </div>
         </div>
 
-        <div className="space-y-4 text-left">
-          <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Загрузка фото</label>
-          <label className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-[40px] p-16 hover:border-blue-400 hover:bg-blue-50/20 transition-all cursor-pointer group overflow-hidden">
+        {/* ГОРОД И АДРЕС */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Город</label>
+            <input type="text" placeholder="Москва" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
+              value={formData.city}
+              onChange={e => setFormData({...formData, city: e.target.value})} />
+          </div>
+          <div className="space-y-3">
+            <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Адрес осмотра</label>
+            <input type="text" placeholder="ул. Тверская, 1" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
+              value={formData.address}
+              onChange={e => setFormData({...formData, address: e.target.value})} />
+          </div>
+        </div>
+
+        {/* ОПИСАНИЕ */}
+        <div className="space-y-3 text-left">
+          <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Описание автомобиля</label>
+          <textarea
+            rows="5"
+            placeholder="Опишите состояние и комплектацию..."
+            className="w-full bg-gray-50 border-2 border-transparent rounded-[32px] p-6 font-medium text-gray-700 focus:bg-white focus:border-blue-600 transition-all resize-none"
+            value={formData.description}
+            onChange={e => setFormData({...formData, description: e.target.value})}
+          />
+        </div>
+
+        {/* ФОТО */}
+        <div className="space-y-3 text-left">
+          <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Основная фотография</label>
+          <label className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-[40px] p-10 hover:border-blue-400 hover:bg-blue-50/20 transition-all cursor-pointer group overflow-hidden">
             <input
               type="file"
               accept="image/*"
@@ -149,36 +148,20 @@ function AddCar() {
               onChange={e => setImage(e.target.files[0])}
             />
             <div className="text-center relative z-10">
-              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-4 mx-auto group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all">
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mb-3 mx-auto group-hover:scale-110 transition-all">
                 📸
               </div>
-              <p className="text-base font-black text-gray-800 uppercase tracking-tight">
-                {image ? image.name : "Нажмите для выбора файла"}
+              <p className="text-sm font-black text-gray-800 uppercase">
+                {image ? image.name : "Выберите файл"}
               </p>
-              <p className="text-[10px] text-gray-400 mt-2 font-black uppercase tracking-[0.2em]">PNG, JPG до 5 MB</p>
             </div>
           </label>
         </div>
 
         <button type="submit" className="w-full bg-blue-600 text-white py-7 rounded-[32px] font-black uppercase text-sm tracking-[0.2em] hover:bg-blue-700 active:scale-[0.97] transition-all shadow-2xl shadow-blue-500/40">
-          Опубликовать в каталог
+          Опубликовать объявление
         </button>
       </form>
-
-      {/* Инструкция: Сделали крупнее и заметнее */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { step: "01", title: "Выбор авто", desc: "Укажите марку и модель из нашей базы данных." },
-          { step: "02", title: "Детали", desc: "Заполните год выпуска, пробег и вашу цену." },
-          { step: "03", title: "Готово", desc: "Добавьте фото и ждите звонков покупателей." }
-        ].map((item, idx) => (
-          <div key={idx} className="bg-white p-8 rounded-[40px] border border-gray-100 text-left hover:shadow-lg transition-all group">
-            <span className="block text-2xl font-black text-blue-100 group-hover:text-blue-600 transition-colors mb-4">{item.step}</span>
-            <h4 className="text-sm font-black uppercase text-gray-900 mb-2 tracking-tight">{item.title}</h4>
-            <p className="text-xs font-bold text-gray-400 leading-relaxed uppercase tracking-tighter">{item.desc}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

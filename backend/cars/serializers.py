@@ -7,19 +7,47 @@ class CarImageSerializer(serializers.ModelSerializer):
         model = CarImage
         fields = ['id', 'image']
 
+
 class CarSerializer(serializers.ModelSerializer):
-    brand = serializers.CharField(source='car_model.brand.name', read_only=True)
-    model_name = serializers.CharField(source='car_model.name', read_only=True)
+    # Указываем, что эти поля теперь принимают текст при записи
+    brand = serializers.CharField(write_only=True)
+    car_model_name = serializers.CharField(source='car_model.name', write_only=True)
+
+    # Поля для отображения (оставляем как было для GET запросов)
+    brand_display = serializers.CharField(source='car_model.brand.name', read_only=True)
+    model_display = serializers.CharField(source='car_model.name', read_only=True)
     images = CarImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Car
-        fields = ['id', 'brand', 'model_name', 'car_model', 'year', 'price',
-                  'mileage', 'city', 'address', 'description', 'owner', 'image', 'images', 'created_at']
+        fields = [
+            'id', 'brand', 'car_model_name', 'brand_display', 'model_display',
+            'year', 'price', 'mileage', 'city', 'address', 'description',
+            'owner', 'image', 'images', 'created_at'
+        ]
         read_only_fields = ['owner', 'created_at']
-        extra_kwargs = {
-            'owner': {'read_only': True}
-        }
+
+    def create(self, validated_data):
+        # 1. Извлекаем текстовые данные марки и модели
+        brand_name = validated_data.pop('brand')
+        model_name = validated_data.pop('car_model')['name']  # достаем из вложенного словаря source
+
+        # 2. Находим или создаем Марку
+        brand_obj, _ = Brand.objects.get_or_create(name=brand_name)
+
+        # 3. Находим или создаем Модель, привязанную к этой марке
+        car_model_obj, _ = CarModel.objects.get_or_create(
+            brand=brand_obj,
+            name=model_name
+        )
+
+        # 4. Назначаем владельца (текущего пользователя)
+        validated_data['owner'] = self.context['request'].user
+
+        # 5. Привязываем найденную модель к объекту машины
+        validated_data['car_model'] = car_model_obj
+
+        return super().create(validated_data)
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
