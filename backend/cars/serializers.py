@@ -9,11 +9,9 @@ class CarImageSerializer(serializers.ModelSerializer):
 
 
 class CarSerializer(serializers.ModelSerializer):
-    # Указываем, что эти поля теперь принимают текст при записи
     brand = serializers.CharField(write_only=True)
     car_model_name = serializers.CharField(source='car_model.name', write_only=True)
 
-    # Поля для отображения (оставляем как было для GET запросов)
     brand_display = serializers.CharField(source='car_model.brand.name', read_only=True)
     model_display = serializers.CharField(source='car_model.name', read_only=True)
     images = CarImageSerializer(many=True, read_only=True)
@@ -27,27 +25,28 @@ class CarSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['owner', 'created_at']
 
-    def create(self, validated_data):
-        # 1. Извлекаем текстовые данные марки и модели
-        brand_name = validated_data.pop('brand')
-        model_name = validated_data.pop('car_model')['name']  # достаем из вложенного словаря source
-
-        # 2. Находим или создаем Марку
+    def _get_or_create_car_model(self, brand_name, model_name):
         brand_obj, _ = Brand.objects.get_or_create(name=brand_name)
+        car_model_obj, _ = CarModel.objects.get_or_create(brand=brand_obj, name=model_name)
+        return car_model_obj
 
-        # 3. Находим или создаем Модель, привязанную к этой марке
-        car_model_obj, _ = CarModel.objects.get_or_create(
-            brand=brand_obj,
-            name=model_name
-        )
-
-        # 4. Назначаем владельца (текущего пользователя)
+    def create(self, validated_data):
+        brand_name = validated_data.pop('brand')
+        model_name = validated_data.pop('car_model')['name']
+        validated_data['car_model'] = self._get_or_create_car_model(brand_name, model_name)
         validated_data['owner'] = self.context['request'].user
-
-        # 5. Привязываем найденную модель к объекту машины
-        validated_data['car_model'] = car_model_obj
-
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Если в запросе пришли бренд и модель, обновляем связь
+        brand_name = validated_data.pop('brand', None)
+        model_data = validated_data.pop('car_model', None)
+
+        if brand_name and model_data:
+            model_name = model_data.get('name')
+            instance.car_model = self._get_or_create_car_model(brand_name, model_name)
+
+        return super().update(instance, validated_data)
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:

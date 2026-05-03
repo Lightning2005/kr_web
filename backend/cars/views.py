@@ -1,9 +1,11 @@
 from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Car, Brand, CarModel, CarImage  # Добавил CarImage
+from .models import Car, Brand, CarModel, CarImage
 from .serializers import CarSerializer, BrandSerializer, CarModelSerializer, MyTokenObtainPairSerializer
 from .filters import CarFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 class CarViewSet(viewsets.ModelViewSet):
     queryset = Car.objects.all()
@@ -21,24 +23,27 @@ class CarViewSet(viewsets.ModelViewSet):
 
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def perform_create(self, serializer):
-        # Сохраняем машину и назначаем владельца
-        instance = serializer.save(owner=self.request.user)
-        # Логика для галереи при создании
+    def perform_update(self, serializer):
+        # Сначала сохраняем текстовые поля
+        instance = serializer.save()
+        # Затем вызываем обработку новых картинок
         self._handle_images(instance)
-
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        # Логика для галереи при редактировании (PATCH)
-        self._handle_images(instance)
-        return super().partial_update(request, *args, **kwargs)
 
     def _handle_images(self, instance):
-        """Вспомогательный метод для обработки новых изображений"""
+        # Получаем список файлов из ключа 'new_images'
         new_images = self.request.FILES.getlist('new_images')
-        if new_images:
-            for image in new_images:
-                CarImage.objects.create(car=instance, image=image)
+        for image in new_images:
+            CarImage.objects.create(car=instance, image=image)
+
+    @action(detail=True, methods=['post'], url_path='delete-image')
+    def delete_image(self, request, pk=None):
+        image_id = request.data.get('image_id')
+        try:
+            image = CarImage.objects.get(id=image_id, car__id=pk)
+            image.delete()
+            return Response({'status': 'photo deleted'}, status=200)
+        except CarImage.DoesNotExist:
+            return Response({'error': 'Photo not found'}, status=404)
 
 class BrandViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Brand.objects.all()
