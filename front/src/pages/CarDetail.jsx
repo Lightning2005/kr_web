@@ -112,7 +112,7 @@ function CarDetail() {
         <div className="lg:col-span-1">
           <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/50">
             <h1 className="text-3xl font-black text-slate-900 leading-tight mb-2 uppercase tracking-tighter">
-              {car.brand} <span className="text-blue-600">{car.model_name || car.car_model?.name}</span>
+              {car.brand_display || car.brand} <span className="text-blue-600">{car.model_display || car.car_model_name || car.model_name}</span>
             </h1>
             <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-8">{car.year} год выпуска</p>
 
