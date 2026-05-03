@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api';
 import CarCard from '../components/CarCard';
+import { Helmet } from 'react-helmet-async';
 
 function Catalog() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -127,6 +128,9 @@ function Catalog() {
 
   return (
     <div className="max-w-[1440px] mx-auto px-10 pt-12 pb-24 min-h-screen">
+        <Helmet>
+            <title>Каталог автомобилей | Drive Select</title>
+        </Helmet>
 
       {/* ПАНЕЛЬ ФИЛЬТРОВ */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 pb-8 border-b-2 border-gray-100">

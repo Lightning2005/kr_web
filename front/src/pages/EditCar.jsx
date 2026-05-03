@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
+import { Helmet } from 'react-helmet-async';
 
 function EditCar() {
   const { id } = useParams();
@@ -90,6 +91,11 @@ function EditCar() {
 
   return (
     <div className="max-w-[1440px] mx-auto px-10 py-10 pb-32">
+        <Helmet>
+            <title>
+                {`Редактирование: ${formData.brand} ${formData.car_model_name} | Drive Select`}
+            </title>
+        </Helmet>
       <h1 className="text-4xl font-black uppercase tracking-tighter mb-12">
         Редактирование <span className="text-blue-600">автомобиля</span>
       </h1>

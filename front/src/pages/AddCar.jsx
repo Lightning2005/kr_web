@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { Helmet } from 'react-helmet-async';
 
 function AddCar() {
   const navigate = useNavigate();
@@ -46,6 +47,9 @@ function AddCar() {
 
   return (
     <div className="max-w-[900px] mx-auto p-6 md:p-10 pb-24">
+        <Helmet>
+            <title>Новое объявление | Drive Select</title>
+        </Helmet>
 
       <div className="text-center mb-12">
         <button

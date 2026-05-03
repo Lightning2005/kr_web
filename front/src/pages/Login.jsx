@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { Helmet } from 'react-helmet-async';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -37,6 +38,9 @@ function Login() {
        чтобы футер поднялся в зону видимости.
     */
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-450px)] px-4">
+        <Helmet>
+            <title>Вход в систему | Drive Select</title>
+        </Helmet>
 
       <form
         onSubmit={handleLogin}

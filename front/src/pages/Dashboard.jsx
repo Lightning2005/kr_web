@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { Helmet } from 'react-helmet-async';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -64,6 +65,9 @@ function Dashboard() {
 
   return (
     <div className="max-w-[1440px] mx-auto p-6 md:p-10">
+        <Helmet>
+            <title>Панель управления | Drive Select</title>
+        </Helmet>
       {/* Шапка */}
       <div className="flex justify-between items-center mb-12">
         <div>

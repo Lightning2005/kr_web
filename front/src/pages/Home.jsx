@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import CarCard from '../components/CarCard';
+import { Helmet } from 'react-helmet-async';
 
 function Home() {
   const [featuredCars, setFeaturedCars] = useState([]);
@@ -25,6 +26,9 @@ function Home() {
 
   return (
     <div className="flex flex-col bg-white">
+        <Helmet>
+            <title>Drive Select — Твой стиль, твой драйв</title>
+        </Helmet>
       {/* ГЛАВНЫЙ ЭКРАН — Больше конкретики, меньше пафоса */}
       <section className="relative h-[700px] bg-gray-900 overflow-hidden">
         <div className="absolute inset-0 bg-black/60 z-10" />

@@ -5,6 +5,7 @@ import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import { YMaps, Map, Placemark, RouteButton } from '@pbe/react-yandex-maps';
+import { Helmet } from 'react-helmet-async';
 
 function CarDetail() {
   const { id } = useParams();
@@ -56,6 +57,13 @@ function CarDetail() {
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8">
+        {car && (
+            <Helmet>
+              <title>
+                {`${car.brand_display || car.brand} ${car.model_display || car.car_model_name} — Drive Select`}
+              </title>
+            </Helmet>
+        )}
 
       {/* ПАНЕЛЬ УПРАВЛЕНИЯ */}
       <div className="flex justify-between items-center mb-8">
