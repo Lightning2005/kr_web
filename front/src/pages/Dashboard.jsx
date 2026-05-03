@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 function Dashboard() {
@@ -44,7 +44,7 @@ function Dashboard() {
   const averagePrice = stats.total > 0 ? Math.round(stats.totalPrice / stats.total) : 0;
 
   const handleDelete = (id, e) => {
-    e.stopPropagation();
+    // e.stopPropagation() вызывается в месте клика кнопки, чтобы не сработал onClick строки
     if (window.confirm("Вы уверены, что хотите удалить этот автомобиль?")) {
       api.delete(`cars/${id}/`)
         .then(() => {
@@ -136,19 +136,23 @@ function Dashboard() {
                 </thead>
                 <tbody className="divide-y divide-gray-50 text-left">
                   {cars.length > 0 ? cars.map(car => (
-                    <tr key={car.id} className="group hover:bg-gray-50/50 transition-all">
+                    <tr
+                      key={car.id}
+                      onClick={() => navigate(`/car/${car.id}`)}
+                      className="group hover:bg-gray-50/50 cursor-pointer transition-all"
+                    >
                       <td className="p-8">
                         <div className="flex items-center gap-6">
                           <img
                             src={car.image || '/placeholder-car.png'}
-                            className="w-24 h-16 object-cover rounded-2xl shadow-sm group-hover:scale-105 transition-transform"
+                            className="w-24 h-16 object-cover rounded-2xl shadow-sm group-hover:scale-105 transition-transform duration-300"
                             alt="car"
                           />
                           <div>
-                            <Link to={`/car/${car.id}`} className="font-black text-gray-900 hover:text-blue-600 transition-colors uppercase text-sm block mb-1">
-                              {car.brand} {car.model_name}
-                            </Link>
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{car.year} Year</span>
+                            <div className="font-black text-gray-900 group-hover:text-blue-600 transition-colors uppercase text-sm block mb-1">
+                              {car.brand_display || car.brand} {car.model_display || car.car_model_name}
+                            </div>
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{car.year} Год</span>
                           </div>
                         </div>
                       </td>
@@ -158,14 +162,20 @@ function Dashboard() {
                       <td className="p-8">
                         <div className="flex justify-center gap-2">
                           <button
-                            onClick={() => navigate(`/edit-car/${car.id}`)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Чтобы не сработал переход на /car/:id
+                              navigate(`/edit-car/${car.id}`);
+                            }}
                             className="w-10 h-10 flex items-center justify-center bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all"
                             title="Редактировать"
                           >
                             ✎
                           </button>
                           <button
-                            onClick={(e) => handleDelete(car.id, e)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Чтобы не сработал переход на /car/:id
+                              handleDelete(car.id, e);
+                            }}
                             className="w-10 h-10 flex items-center justify-center bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all"
                             title="Удалить"
                           >
