@@ -15,7 +15,7 @@ class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
         fields = ['id', 'brand', 'model_name', 'car_model', 'year', 'price',
-                  'mileage', 'description', 'owner', 'image', 'images', 'created_at']
+                  'mileage', 'city', 'address', 'description', 'owner', 'image', 'images', 'created_at']
         read_only_fields = ['owner', 'created_at']
         extra_kwargs = {
             'owner': {'read_only': True}

@@ -4,69 +4,79 @@ import api from '../api';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
+import { YMaps, Map, Placemark, RouteButton } from '@pbe/react-yandex-maps';
 
 function CarDetail() {
   const { id } = useParams();
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [coords, setCoords] = useState([55.751574, 37.573856]);
   const [openGallery, setOpenGallery] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState('specs');
   const navigate = useNavigate();
 
-  // Обновленная логика проверки админа по требованию бэкенда
-  const isAdmin = localStorage.getItem('access') && localStorage.getItem('is_staff') === 'true';
+  const isAdmin = !!localStorage.getItem('userAuth');
 
   useEffect(() => {
-    // Добавляем timestamp к запросу, чтобы браузер не брал старые фото из кэша
     api.get(`cars/${id}/?t=${Date.now()}`)
       .then(res => {
         setCar(res.data);
         setLoading(false);
+        if (res.data.address) geocodeAddress(res.data.address);
       })
-      .catch(err => {
-        console.error("Ошибка:", err);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, [id]);
 
-  const handleDelete = () => {
-    if (window.confirm("Вы уверены, что хотите удалить этот автомобиль?")) {
-      api.delete(`cars/${id}/`)
-        .then(() => navigate('/catalog'))
-        .catch(err => alert("Ошибка при удалении"));
-    }
+  const geocodeAddress = (address) => {
+    fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=88726589-d978-43f1-9494-0130f40d6542&format=json&geocode=${encodeURIComponent(address)}`)
+      .then(res => res.json())
+      .then(data => {
+        const pos = data.response.GeoObjectCollection.featureMember[0]?.GeoObject?.Point?.pos;
+        if (pos) {
+          const [lon, lat] = pos.split(' ').map(Number);
+          setCoords([lat, lon]);
+        }
+      });
   };
 
-  if (loading) return <div className="p-20 text-center font-black uppercase tracking-[0.4em] text-gray-300 animate-pulse">Загрузка данных...</div>;
-  if (!car) return <div className="p-20 text-center font-black uppercase tracking-widest text-red-500">Автомобиль не найден</div>;
-
-  // Собираем все фото в один массив для слайдера
+  if (loading || !car) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+          {/* Пульсирующий логотип или кружок */}
+          <div className="w-16 h-16 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
+            Синхронизация данных...
+          </div>
+        </div>
+      );
+    }
   const allPhotos = [car.image, ...car.images.map(img => img.image)].filter(Boolean);
   const slides = allPhotos.map(src => ({ src }));
 
   return (
-    <div className="max-w-[1440px] mx-auto px-10 py-4 pb-32">
+    <div className="max-w-[1200px] mx-auto px-4 py-8">
 
-      {/* ВЕРХНЯЯ ПАНЕЛЬ */}
-      <div className="flex justify-between items-center mb-10">
+      {/* ПАНЕЛЬ УПРАВЛЕНИЯ */}
+      <div className="flex justify-between items-center mb-8">
         <button
           onClick={() => navigate('/catalog')}
-          className="group flex items-center gap-3 font-black uppercase text-[10px] tracking-[0.3em] text-gray-400 hover:text-blue-600 transition-all"
+          className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-blue-600 transition-colors"
         >
-          <span className="text-xl group-hover:-translate-x-2 transition-transform">←</span> Назад в каталог
+          ← Назад в каталог
         </button>
 
         {isAdmin && (
-          <div className="flex gap-2 p-1.5 bg-gray-900 rounded-[20px] shadow-2xl">
+          <div className="flex gap-2">
             <button
               onClick={() => navigate(`/edit-car/${id}`)}
-              className="text-white px-6 py-3 rounded-[14px] font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all"
+              className="px-6 py-2.5 bg-slate-900 text-white text-[10px] font-black uppercase rounded-lg hover:bg-blue-600 transition-all shadow-lg shadow-slate-200"
             >
               Редактировать
             </button>
             <button
-              onClick={handleDelete}
-              className="text-red-500 px-6 py-3 rounded-[14px] font-black text-[10px] uppercase tracking-widest hover:bg-red-500/10 transition-all"
+              onClick={() => { if(window.confirm("Удалить этот автомобиль?")) api.delete(`cars/${id}/`).then(() => navigate('/catalog')) }}
+              className="px-6 py-2.5 border-2 border-red-500/10 text-red-500 text-[10px] font-black uppercase rounded-lg hover:bg-red-500 hover:text-white transition-all"
             >
               Удалить
             </button>
@@ -74,96 +84,137 @@ function CarDetail() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
 
-        {/* ГАЛЕРЕЯ (7 КОЛОНОК) */}
-        <div className="lg:col-span-7 space-y-6">
+        {/* ЛЕВАЯ ЧАСТЬ: ГАЛЕРЕЯ */}
+        <div className="lg:col-span-2">
           <div
             onClick={() => { setPhotoIndex(0); setOpenGallery(true); }}
-            className="w-full h-[600px] cursor-zoom-in overflow-hidden rounded-[40px] bg-gray-100 group relative shadow-2xl shadow-gray-200"
+            className="w-full aspect-[16/10] rounded-[32px] overflow-hidden cursor-zoom-in bg-gray-100 shadow-2xl"
           >
-            <img src={car.image} alt="Main" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" />
-            <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-all pointer-events-none"></div>
+            <img src={car.image} className="w-full h-full object-cover" alt="Main" />
           </div>
 
-          <div className="grid grid-cols-4 gap-6">
-            {car.images.slice(0, 4).map((photo, idx) => (
+          <div className="grid grid-cols-4 gap-4 mt-6">
+            {allPhotos.slice(1, 5).map((img, idx) => (
               <div
-                key={photo.id}
+                key={idx}
                 onClick={() => { setPhotoIndex(idx + 1); setOpenGallery(true); }}
-                className="h-[140px] cursor-zoom-in overflow-hidden rounded-[24px] bg-gray-100 group relative border-4 border-transparent hover:border-blue-600 transition-all shadow-lg"
+                className="aspect-video rounded-2xl overflow-hidden cursor-pointer hover:ring-4 ring-blue-600/20 transition-all border border-gray-100 shadow-md"
               >
-                <img src={photo.image} alt="thumb" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                {idx === 3 && car.images.length > 4 && (
-                  <div className="absolute inset-0 bg-gray-900/70 flex items-center justify-center text-white text-xs font-black uppercase backdrop-blur-sm">
-                    Еще +{car.images.length - 4}
-                  </div>
-                )}
+                <img src={img} className="w-full h-full object-cover" alt="Thumb" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* ИНФОРМАЦИЯ (5 КОЛОНОК) */}
-        <div className="lg:col-span-5 sticky top-10">
-          <div className="mb-10">
-             <span className="bg-blue-50 text-blue-600 font-black uppercase tracking-[0.3em] text-[9px] px-4 py-2 rounded-full">DriveSelect Certified</span>
-             <h1 className="text-6xl font-black text-gray-900 uppercase tracking-tighter leading-[0.9] mt-6">
-                {car.brand} <br />
-                <span className="text-gray-300">{car.model_name}</span>
-             </h1>
-             <div className="flex gap-4 mt-6">
-                <p className="bg-gray-900 text-white px-4 py-2 rounded-xl font-black uppercase tracking-widest text-[10px]">
-                  {car.year} год
-                </p>
-                <p className="border-2 border-gray-100 px-4 py-2 rounded-xl font-black text-gray-400 uppercase tracking-widest text-[10px]">
-                  {car.mileage?.toLocaleString()} км
-                </p>
-             </div>
-          </div>
+        {/* ПРАВАЯ ЧАСТЬ: КАРТОЧКА */}
+        <div className="lg:col-span-1">
+          <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/50">
+            <h1 className="text-3xl font-black text-slate-900 leading-tight mb-2 uppercase tracking-tighter">
+              {car.brand} <span className="text-blue-600">{car.model_name || car.car_model?.name}</span>
+            </h1>
+            <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-8">{car.year} год выпуска</p>
 
-          <div className="bg-gray-50 rounded-[40px] p-10 mb-10 border border-gray-100 shadow-sm">
-             <div className="flex justify-between items-center mb-8">
-                <span className="text-gray-400 font-black uppercase text-[10px] tracking-widest">Цена</span>
-                <p className="text-5xl font-black text-gray-900 tracking-tighter">
-                  {Number(car.price).toLocaleString()} <span className="text-blue-600">₽</span>
-                </p>
-             </div>
-             <button className="w-full bg-blue-600 text-white py-6 rounded-[24px] font-black uppercase text-[12px] tracking-[0.2em] hover:bg-gray-900 transition-all shadow-2xl shadow-blue-500/20 active:scale-95 mb-6">
-                Оформить покупку
-             </button>
-             <div className="text-center">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Кредит без первого взноса</p>
-                <p className="text-blue-600 font-black text-lg">от 14 200 ₽ / мес.</p>
-             </div>
-          </div>
+            <div className="mb-10">
+               <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest block mb-1">Стоимость</span>
+               <div className="text-5xl font-black text-slate-900 tracking-tighter">
+                 {Number(car.price).toLocaleString()} <span className="text-blue-600 text-3xl">₽</span>
+               </div>
+            </div>
 
-          <div className="space-y-4 px-4">
-            <h3 className="font-black uppercase text-[11px] tracking-widest text-gray-900 mb-6 flex items-center gap-4">
-               Характеристики <div className="h-[2px] flex-1 bg-gray-100"></div>
-            </h3>
-            {[
-              { label: 'Производитель', value: car.brand },
-              { label: 'Модель', value: car.model_name },
-              { label: 'Год выпуска', value: car.year },
-            ].map((item, i) => (
-              <div key={i} className="flex justify-between items-center border-b border-gray-50 pb-4">
-                <span className="text-gray-400 font-black uppercase text-[9px] tracking-widest">{item.label}</span>
-                <span className="font-black text-gray-900 uppercase text-xs">{item.value}</span>
-              </div>
-            ))}
+            <div className="space-y-3">
+              <button className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] hover:bg-slate-900 transition-all shadow-xl shadow-blue-500/20">
+                Оставить заявку
+              </button>
+            </div>
+
+            <div className="mt-10 pt-8 border-t border-gray-100 grid grid-cols-2 gap-4">
+               <div>
+                  <span className="text-[9px] font-black text-gray-300 uppercase block mb-1">Пробег</span>
+                  <span className="text-sm font-black text-slate-700">{car.mileage?.toLocaleString()} км</span>
+               </div>
+               <div>
+                  <span className="text-[9px] font-black text-gray-300 uppercase block mb-1">Город</span>
+                  <span className="text-sm font-black text-slate-700">{car.city || car.address?.split(',')[0] || 'Москва'}</span>
+               </div>
+            </div>
           </div>
         </div>
-
       </div>
 
-      <Lightbox
-        open={openGallery}
-        close={() => setOpenGallery(false)}
-        index={photoIndex}
-        slides={slides}
-        plugins={[Zoom]}
-      />
+      {/* ТАБЫ */}
+      <div className="mt-10">
+        <div className="flex gap-10 border-b border-gray-100 mb-8">
+          {[
+            { id: 'specs', label: 'Характеристики' },
+            { id: 'description', label: 'Описание' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-4 text-[12px] font-black uppercase tracking-[0.3em] transition-all relative ${activeTab === tab.id ? 'text-blue-600' : 'text-gray-300 hover:text-gray-500'}`}
+            >
+              {tab.label}
+              {activeTab === tab.id && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-blue-600 rounded-full" />}
+            </button>
+          ))}
+        </div>
+
+        <div className="max-w-4xl">
+          {activeTab === 'specs' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-4">
+               {[
+                 { l: 'Марка', v: car.brand },
+                 { l: 'Модель', v: car.model_name || car.car_model?.name },
+                 { l: 'Год выпуска', v: car.year },
+                 { l: 'Пробег', v: `${car.mileage?.toLocaleString()} км` },
+                 { l: 'Город', v: car.city },
+                 { l: 'Адрес осмотра', v: car.address },
+                 { l: 'Тип продавца', v: 'Автосалон' },
+               ].map((s, i) => (
+                 <div key={i} className="flex justify-between items-center border-b border-gray-50 pb-3">
+                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{s.l}</span>
+                    <span className="text-slate-900 text-[11px] font-black uppercase">{s.v}</span>
+                 </div>
+               ))}
+            </div>
+          ) : (
+            <div className="prose prose-slate max-w-none pb-4">
+              <p className="text-gray-600 text-base leading-relaxed whitespace-pre-line font-medium">
+                {car.description || "Информация уточняется."}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* КАРТА МЕСТОПОЛОЖЕНИЯ - ИСПРАВЛЕНО ДЛЯ ЗАПОЛНЕНИЯ БЛОКА */}
+      <div className="mt-10">
+         <div className="text-center mb-6">
+            <h3 className="text-xl font-black uppercase tracking-[0.4em] text-slate-900">Место осмотра</h3>
+            <div className="h-1 w-16 bg-blue-600 mx-auto mt-2 rounded-full"></div>
+         </div>
+         {/* Контейнер карты с фиксированной высотой и overflow-hidden */}
+         <div className="h-[450px] w-full rounded-[40px] overflow-hidden border-[8px] border-white shadow-2xl shadow-gray-200 relative bg-gray-100">
+            <YMaps>
+              <Map
+                state={{ center: coords, zoom: 15 }}
+                width="100%"
+                height="100%"
+                className="w-full h-full absolute inset-0"
+                options={{
+                  autoFitToViewport: 'always', // Помогает карте адаптироваться к размеру
+                }}
+              >
+                <Placemark geometry={coords} />
+                <RouteButton options={{ float: 'right' }} />
+              </Map>
+            </YMaps>
+         </div>
+      </div>
+
+      <Lightbox open={openGallery} close={() => setOpenGallery(false)} index={photoIndex} slides={slides} plugins={[Zoom]} />
     </div>
   );
 }

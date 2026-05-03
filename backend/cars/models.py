@@ -48,6 +48,16 @@ class Car(models.Model):
     year = models.PositiveIntegerField(verbose_name="Год выпуска")
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Цена")
     mileage = models.PositiveIntegerField(verbose_name="Пробег (км)")
+    city = models.CharField(
+        max_length=100,
+        default="Москва",
+        verbose_name="Город"
+    )
+    address = models.CharField(
+        max_length=255,
+        default="Москва, ул. Тверская, 1",
+        verbose_name="Адрес осмотра"
+    )
     description = models.TextField(blank=True, verbose_name="Описание")
     image = models.ImageField(
         upload_to='cars_photos/',

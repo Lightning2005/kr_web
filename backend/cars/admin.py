@@ -11,8 +11,8 @@ class CarImageInline(admin.TabularInline):
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
     inlines = [CarImageInline]
-    list_display = ('get_brand', 'car_model', 'year', 'price')
-    list_filter = ('car_model__brand', 'year')
+    list_display = ('get_brand', 'car_model', 'city', 'year', 'price')
+    list_filter = ('car_model__brand', 'city', 'year')
 
     def get_brand(self, obj):
         return obj.car_model.brand
