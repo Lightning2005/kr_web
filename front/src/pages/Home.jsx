@@ -47,19 +47,24 @@ function Home() {
         </div>
       </section>
 
-      {/* ВЫБОР МАРКИ — Теперь это явно кнопки с обводкой */}
-      <section className="py-16 bg-gray-50 border-b">
-        <div className="max-w-[1440px] mx-auto px-10">
-          <h2 className="text-center text-gray-400 font-black uppercase tracking-widest mb-10 text-sm">Популярные марки</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {brands.map(brand => (
-              <button key={brand} className="py-4 px-10 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all font-black uppercase text-sm text-gray-700 shadow-sm active:bg-gray-100">
-                {brand}
-              </button>
-            ))}
+      {/* ВЫБОР МАРКИ — Теперь кнопки рабочие и ведут в каталог */}
+        <section className="py-16 bg-gray-50 border-b">
+          <div className="max-w-[1440px] mx-auto px-10">
+            <h2 className="text-center text-gray-400 font-black uppercase tracking-widest mb-10 text-sm">Популярные марки</h2>
+            <div className="flex flex-wrap justify-center gap-4">
+              {brands.map(brand => (
+                <Link
+                  key={brand}
+                  // Генерируем ссылку с параметром brand_name
+                  to={`/catalog?brand_name=${encodeURIComponent(brand)}`}
+                  className="py-4 px-10 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all font-black uppercase text-sm text-gray-700 shadow-sm active:bg-gray-100 flex items-center justify-center"
+                >
+                  {brand}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* ПРЕИМУЩЕСТВА — Крупные блоки, понятные иконки */}
       <section className="py-32">
