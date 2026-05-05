@@ -45,9 +45,9 @@ function Login() {
       >
         <div className="text-center mb-8">
           <h2 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
-            <span className="text-blue-600">АВТО</span><span>САЛОН</span>
+            <span className="text-blue-600">АВТО</span>САЛОН
           </h2>
-          <p className="text-gray-400 mt-2 font-black text-[9px] uppercase tracking-[0.3em]">
+          <p className="text-gray-500 mt-2 font-black text-[9px] uppercase tracking-[0.3em]">
             Вход для персонала
           </p>
         </div>
@@ -89,8 +89,8 @@ function Login() {
           </button>
         </div>
 
-        <p className="text-center mt-10 text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">
-          © 2026 АВТО<span className="text-blue-500/50">САЛОН</span> SYSTEMS
+        <p className="text-center mt-10 text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em]">
+          © 2026 СИСТЕМЫ <span className="text-blue-500">АВТО</span>САЛОН
         </p>
       </form>
     </div>

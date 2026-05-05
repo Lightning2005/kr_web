@@ -12,7 +12,7 @@ function Header() {
 
         {/* Логотип: увеличили размер и межбуквенное расстояние */}
         <Link to="/" className="text-3xl font-black tracking-tighter text-blue-600 uppercase">
-          DRIVE<span className="text-gray-900">SELECT</span>
+          АВТО<span className="text-gray-900">САЛОН</span>
         </Link>
 
         <nav className="flex items-center gap-12">

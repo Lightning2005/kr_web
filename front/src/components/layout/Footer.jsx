@@ -21,7 +21,7 @@ function Footer() {
             <Link to="/" className="text-2xl font-black tracking-tighter text-blue-600 uppercase">
               АВТО<span className="text-gray-900">САЛОН</span>
             </Link>
-            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+            <p className="text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em]">
               Курсовая работа • 2026
             </p>
           </div>
@@ -45,7 +45,7 @@ function Footer() {
                     Вход для персонала
                   </Link>
                 ) : (
-                  <Link to="/dashboard" className="text-blue-500 hover:text-blue-700 font-bold transition-colors">
+                  <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 transition-colors">
                     Панель управления
                   </Link>
                 )}
@@ -58,7 +58,7 @@ function Footer() {
             <h4 className="font-black text-gray-900 mb-6 uppercase text-xs tracking-widest">
               Поддержка
             </h4>
-            <p className="text-[13px] text-gray-400 font-medium">
+            <p className="text-[13px] text-gray-600 font-medium">
               Служба поддержки: <span className="text-gray-600">8 (800) 555-35-35</span>
             </p>
           </div>
