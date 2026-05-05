@@ -44,8 +44,8 @@ function Login() {
         className="bg-white p-10 rounded-[40px] shadow-2xl w-full max-w-md border border-gray-50 transition-all"
       >
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-black text-gray-900 tracking-tighter uppercase italic">
-            АВТО<span className="text-blue-600">САЛОН</span>
+          <h2 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
+            <span className="text-blue-600">АВТО</span><span>САЛОН</span>
           </h2>
           <p className="text-gray-400 mt-2 font-black text-[9px] uppercase tracking-[0.3em]">
             Вход для персонала
