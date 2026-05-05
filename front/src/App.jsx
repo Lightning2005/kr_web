@@ -8,10 +8,12 @@ import Footer from './components/layout/Footer';
 import Dashboard from './pages/Dashboard';
 import AddCar from './pages/AddCar';
 import EditCar from './pages/EditCar';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <Router>
+        <ScrollToTop />
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
         <main className="flex-grow">
