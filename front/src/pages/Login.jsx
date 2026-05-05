@@ -21,8 +21,10 @@ function Login() {
       if (response.data && response.data.access) {
         localStorage.setItem('access', response.data.access);
         localStorage.setItem('refresh', response.data.refresh);
+        // Сохраняем метку авторизации
         localStorage.setItem('userAuth', btoa(`${username}:${password}`));
-        navigate('/catalog');
+        // После перехода Footer перерисуется благодаря useEffect(..., [location])
+        navigate('/dashboard');
       } else {
         setError('Сервер не вернул токен доступа.');
       }
@@ -32,23 +34,18 @@ function Login() {
   };
 
   return (
-    /*
-       Используем min-h-[calc(100vh-header_height-footer_height)].
-       Учитывая py-20 и h-24, нам нужно вычесть около 400px,
-       чтобы футер поднялся в зону видимости.
-    */
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-450px)] px-4">
+    <div className="flex items-center justify-center py-20 px-4">
         <Helmet>
-            <title>Вход в систему | Drive Select</title>
+            <title>Вход в систему | Автосалон</title>
         </Helmet>
 
       <form
         onSubmit={handleLogin}
-        className="bg-white p-10 rounded-[40px] shadow-2xl w-full max-w-md border border-gray-50 mt-10 transition-all"
+        className="bg-white p-10 rounded-[40px] shadow-2xl w-full max-w-md border border-gray-50 transition-all"
       >
         <div className="text-center mb-8">
           <h2 className="text-4xl font-black text-gray-900 tracking-tighter uppercase italic">
-            DRIVE<span className="text-blue-600">SELECT</span>
+            АВТО<span className="text-blue-600">САЛОН</span>
           </h2>
           <p className="text-gray-400 mt-2 font-black text-[9px] uppercase tracking-[0.3em]">
             Вход для персонала
@@ -93,15 +90,9 @@ function Login() {
         </div>
 
         <p className="text-center mt-10 text-[10px] text-gray-300 font-bold uppercase tracking-[0.3em]">
-          © 2026 DRIVE<span className="text-blue-500/50">SELECT</span> SYSTEMS
+          © 2026 АВТО<span className="text-blue-500/50">САЛОН</span> SYSTEMS
         </p>
       </form>
-
-      {/*
-          ХАК: Если в твоем Footer.jsx прописан mt-20, он всегда будет толкать футер вниз.
-          Добавляем невидимый распорку, чтобы компенсировать это, либо убедись,
-          что в файле App.jsx контент обернут в flex-grow.
-      */}
     </div>
   );
 }

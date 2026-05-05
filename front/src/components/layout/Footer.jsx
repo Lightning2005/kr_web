@@ -1,19 +1,25 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 function Footer() {
-  // Проверяем наличие авторизации, чтобы скрыть/показать вход для персонала
-  const isAuth = !!localStorage.getItem('userAuth');
+  const location = useLocation();
+  const [isAuth, setIsAuth] = useState(!!localStorage.getItem('userAuth'));
+
+  // Обновляем состояние при каждом переходе по страницам
+  useEffect(() => {
+    setIsAuth(!!localStorage.getItem('userAuth'));
+  }, [location]);
 
   return (
-    <footer className="bg-white border-t-2 border-gray-100 py-20 mt-20">
-      {/* Контейнер 1440px для идеального выравнивания с шапкой и каталогом */}
+    <footer className="bg-white border-t-2 border-gray-100 py-20">
+      {/* Убрали mt-20, так как flex-grow в App.jsx сам прижмет его к низу */}
       <div className="max-w-[1440px] mx-auto px-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
 
           {/* Левая колонка: Брендинг */}
           <div className="space-y-4">
             <Link to="/" className="text-2xl font-black tracking-tighter text-blue-600 uppercase">
-              DRIVE<span className="text-gray-900">SELECT</span>
+              АВТО<span className="text-gray-900">САЛОН</span>
             </Link>
             <p className="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em]">
               Курсовая работа • 2026
@@ -32,14 +38,14 @@ function Footer() {
                 </Link>
               </li>
 
-              {/* Скрытая навигация: неброский цвет, чтобы не отвлекать */}
               <li>
+                {/* Теперь текст будет меняться сразу после редиректа из Login */}
                 {!isAuth ? (
                   <Link to="/login" className="text-gray-300 hover:text-gray-600 transition-colors">
                     Вход для персонала
                   </Link>
                 ) : (
-                  <Link to="/dashboard" className="text-gray-300 hover:text-gray-600 transition-colors">
+                  <Link to="/dashboard" className="text-blue-500 hover:text-blue-700 font-bold transition-colors">
                     Панель управления
                   </Link>
                 )}
