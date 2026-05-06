@@ -119,11 +119,11 @@ function Catalog() {
 
   // Модели фильтруем только из того, что сейчас в стейте `cars`
   const availableModels = selectedBrand
-    ? [...new Set(cars.filter(car => car.brand === selectedBrand).map(car => car.model_name))].sort()
+    ? [...new Set(cars.filter(car => car.brand_display === selectedBrand).map(car => car.model_display))].sort()
     : [];
 
   const finalCars = selectedModel
-    ? cars.filter(car => car.model_name === selectedModel)
+    ? cars.filter(car => car.model_display === selectedModel)
     : cars;
 
   return (
