@@ -31,7 +31,7 @@ function Home() {
         </Helmet>
       {/* ГЛАВНЫЙ ЭКРАН — Больше конкретики, меньше пафоса */}
       <section className="relative h-[700px] bg-gray-900 overflow-hidden">
-        <div className="absolute inset-0 bg-black/60 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10"/>
         <img
           src="/images/bmw_5_1.jpg"
           className="absolute inset-0 w-full h-full object-cover object-center"
@@ -59,11 +59,26 @@ function Home() {
               {brands.map(brand => (
                 <Link
                   key={brand}
-                  // Генерируем ссылку с параметром brand_name
-                  to={`/catalog?brand_name=${encodeURIComponent(brand)}`}
-                  className="py-4 px-10 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all font-black uppercase text-sm text-gray-700 shadow-sm active:bg-gray-100 flex items-center justify-center"
+                  to={`/catalog?make=${brand}`}
+                  className="group flex flex-col items-center justify-center bg-white border border-gray-200 p-6 rounded-2xl min-w-[140px] hover:border-blue-600 hover:shadow-lg transition-all active:scale-95"
                 >
-                  {brand}
+                <div className="w-12 h-12 mb-3 flex items-center justify-center bg-gray-50 rounded-xl group-hover:bg-blue-50 transition-colors">
+                    <img
+                      // Мы берем название бренда, переводим в нижний регистр
+                      // и берем только первое слово до пробела или дефиса
+                      src={`/images/${brand.toLowerCase().split(/[ (/-]/)[0]}.svg`}
+                      alt={brand}
+                      className="w-12 h-12 object-contain group-hover:scale-110 transition-transform"
+                      onError={(e) => {
+                        // Если картинка вдруг не найдется, заменяем её на первую букву
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'block';
+                      }}
+                    />
+                </div>
+                <span className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                    {brand}
+                </span>
                 </Link>
               ))}
             </div>
