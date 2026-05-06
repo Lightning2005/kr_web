@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',   # Поиск
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 6, # По 6 машин на страницу
+    'PAGE_SIZE': 8, # По 6 машин на страницу
 }
 
 SIMPLE_JWT = {

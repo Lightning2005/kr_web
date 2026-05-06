@@ -69,7 +69,7 @@ function CarDetail() {
       <div className="flex justify-between items-center mb-8">
         <button
           onClick={() => navigate('/catalog')}
-          className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-blue-600 transition-colors"
+          className="text-[12px] font-black uppercase tracking-[0.2em] text-black   -600 hover:text-blue-600 transition-colors"
         >
           ← Назад в каталог
         </button>

@@ -12,7 +12,7 @@ function AddCar() {
     year: '',
     price: '',
     mileage: '',
-    city: 'Москва',
+    city: '',
     address: '',
     description: ''
   });
@@ -54,7 +54,7 @@ function AddCar() {
       <div className="text-center mb-12">
         <button
           onClick={() => navigate(-1)}
-          className="text-blue-600 font-black uppercase text-[10px] tracking-widest mb-4 hover:underline transition-all"
+          className="text-blue-600 font-black uppercase text-[12px] tracking-widest mb-4 hover:underline transition-all"
         >
           ← Назад в панель управления
         </button>
@@ -116,13 +116,13 @@ function AddCar() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-3">
             <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Город</label>
-            <input type="text" placeholder="Москва" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
+            <input type="text" placeholder="Ростов-на-Дону" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
               value={formData.city}
               onChange={e => setFormData({...formData, city: e.target.value})} />
           </div>
           <div className="space-y-3">
             <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Адрес осмотра</label>
-            <input type="text" placeholder="ул. Тверская, 1" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
+            <input type="text" placeholder="Вавилова 59E" className="w-full bg-gray-50 border-2 border-transparent rounded-[24px] p-5 font-bold focus:bg-white focus:border-blue-600 transition-all" required
               value={formData.address}
               onChange={e => setFormData({...formData, address: e.target.value})} />
           </div>
@@ -133,7 +133,7 @@ function AddCar() {
           <label className="text-[11px] font-black uppercase text-gray-400 tracking-[0.2em] ml-6">Описание автомобиля</label>
           <textarea
             rows="5"
-            placeholder="Опишите состояние и комплектацию..."
+            placeholder=""
             className="w-full bg-gray-50 border-2 border-transparent rounded-[32px] p-6 font-medium text-gray-700 focus:bg-white focus:border-blue-600 transition-all resize-none"
             value={formData.description}
             onChange={e => setFormData({...formData, description: e.target.value})}
