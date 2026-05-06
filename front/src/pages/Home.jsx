@@ -59,7 +59,7 @@ function Home() {
               {brands.map(brand => (
                 <Link
                   key={brand}
-                  to={`/catalog?make=${brand}`}
+                  to={`/catalog?brand_name=${brand}`}
                   className="group flex flex-col items-center justify-center bg-white border border-gray-200 p-6 rounded-2xl min-w-[140px] hover:border-blue-600 hover:shadow-lg transition-all active:scale-95"
                 >
                 <div className="w-12 h-12 mb-3 flex items-center justify-center bg-gray-50 rounded-xl group-hover:bg-blue-50 transition-colors">
