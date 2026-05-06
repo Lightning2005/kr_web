@@ -17,7 +17,7 @@ class CarViewSet(viewsets.ModelViewSet):
     ]
     filterset_class = CarFilter
 
-    search_fields = ['car_model__name', 'description']
+    search_fields = ['car_model__brand__name', 'car_model__name', 'description']
     ordering_fields = ['price', 'year', 'mileage']
     ordering = ['-created_at']
 
