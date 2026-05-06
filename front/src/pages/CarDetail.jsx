@@ -4,18 +4,31 @@ import api from '../api';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
-import Map2GIS from '../components/Map2GIS'; // ← заменили импорт яндекса
+import Map2GIS from '../components/Map2GIS';
 import { Helmet } from 'react-helmet-async';
+
+// Swiper imports
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Thumbs, FreeMode } from 'swiper/modules';
+
+// Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/thumbs';
+import 'swiper/css/free-mode';
 
 function CarDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
-  // ← убрали coords и geocodeAddress — Map2GIS делает это сам
   const [openGallery, setOpenGallery] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('specs');
-  const navigate = useNavigate();
+
+  // Состояние для связи основного слайдера и галереи миниатюр
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
   const isAdmin = !!localStorage.getItem('userAuth');
 
@@ -24,7 +37,6 @@ function CarDetail() {
       .then(res => {
         setCar(res.data);
         setLoading(false);
-        // ← убрали вызов geocodeAddress, он больше не нужен
       })
       .catch(() => setLoading(false));
   }, [id]);
@@ -81,26 +93,66 @@ function CarDetail() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-
         {/* ЛЕВАЯ ЧАСТЬ: ГАЛЕРЕЯ */}
         <div className="lg:col-span-2">
-          <div
-            onClick={() => { setPhotoIndex(0); setOpenGallery(true); }}
-            className="w-full aspect-[16/10] rounded-[32px] overflow-hidden cursor-zoom-in bg-gray-100 shadow-2xl"
-          >
-            <img src={car.image} className="w-full h-full object-cover" alt="Main" />
+
+          {/* Главный слайдер */}
+          <div className="relative group mb-6">
+            <Swiper
+              spaceBetween={0}
+              navigation={{
+                prevEl: '.swiper-button-prev-custom',
+                nextEl: '.swiper-button-next-custom',
+              }}
+              thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+              modules={[Navigation, Thumbs]}
+              onSlideChange={(swiper) => setPhotoIndex(swiper.activeIndex)}
+              className="w-full aspect-[16/10] rounded-[32px] overflow-hidden bg-gray-100 shadow-2xl"
+            >
+              {allPhotos.map((img, idx) => (
+                <SwiperSlide key={idx} onClick={() => setOpenGallery(true)} className="cursor-zoom-in">
+                  <img src={img} className="w-full h-full object-cover" alt={`Slide ${idx}`} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+
+            {/* Кастомные кнопки переключения (как на референсе) */}
+            <button className="swiper-button-prev-custom absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-xl hover:bg-white transition-all opacity-0 group-hover:opacity-100 disabled:hidden text-slate-900 font-bold">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button className="swiper-button-next-custom absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-xl hover:bg-white transition-all opacity-0 group-hover:opacity-100 disabled:hidden text-slate-900 font-bold">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
           </div>
 
-          <div className="grid grid-cols-4 gap-4 mt-6">
-            {allPhotos.slice(1, 5).map((img, idx) => (
-              <div
-                key={idx}
-                onClick={() => { setPhotoIndex(idx + 1); setOpenGallery(true); }}
-                className="aspect-video rounded-2xl overflow-hidden cursor-pointer hover:ring-4 ring-blue-600/20 transition-all border border-gray-100 shadow-md"
-              >
-                <img src={img} className="w-full h-full object-cover" alt="Thumb" />
-              </div>
-            ))}
+          {/* Галерея миниатюр (Thumbnails) */}
+          <div className="px-1">
+            <Swiper
+              onSwiper={setThumbsSwiper}
+              spaceBetween={12}
+              slidesPerView={4}
+              freeMode={true}
+              watchSlidesProgress={true}
+              modules={[FreeMode, Navigation, Thumbs]}
+              className="thumbnails-slider !pb-4 cursor-grab active:cursor-grabbing"
+              breakpoints={{
+                640: { slidesPerView: 5 },
+                1024: { slidesPerView: 5 }
+              }}
+            >
+              {allPhotos.map((img, idx) => (
+                <SwiperSlide key={idx}>
+                  <div
+                    className={`aspect-video rounded-2xl overflow-hidden transition-all duration-300 border-2 cursor-pointer
+                      ${photoIndex === idx
+                        ? 'border-blue-600 shadow-lg scale-[0.98]'
+                        : 'border-transparent hover:border-blue-200'}`}
+                  >
+                    <img src={img} className="w-full h-full object-cover" alt="Thumb" />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
 
@@ -185,7 +237,7 @@ function CarDetail() {
         </div>
       </div>
 
-      {/* КАРТА МЕСТОПОЛОЖЕНИЯ — 2ГИС */}
+      {/* КАРТА */}
       <div className="mt-10">
         <div className="text-center mb-6">
           <h3 className="text-xl font-black uppercase tracking-[0.4em] text-slate-900">Место осмотра</h3>
@@ -200,20 +252,22 @@ function CarDetail() {
         </div>
       </div>
 
+      {/* LIGHTBOX */}
       <Lightbox
         open={openGallery}
         close={() => setOpenGallery(false)}
         index={photoIndex}
         slides={slides}
         plugins={[Zoom]}
+        plugins={[Zoom]}
         zoom={{
-            maxZoomPixelRatio: 5, // Увеличивает в 5 раз от оригинального размера (было 1)
-            scrollToZoom: true,   // Позволяет зумить колесиком мыши
-            doubleTapDelay: 300,  // Задержка для двойного клика (зум по клику)
+            maxZoomPixelRatio: 5,
+            scrollToZoom: true,
+            doubleTapDelay: 300,
             doubleClickDelay: 300,
-            doubleClickMaxStops: 2, // Сколько шагов зума при двойном клике
-            keyboardMoveStep: 50,   // Шаг перемещения стрелками в зуме
-            }}
+            doubleClickMaxStops: 2,
+            keyboardMoveStep: 50,
+        }}
       />
     </div>
   );

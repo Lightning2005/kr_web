@@ -19,6 +19,7 @@
     "react-helmet-async": "^3.0.0",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.14.2",
+    "swiper": "^12.1.4",
     "yet-another-react-lightbox": "^3.32.0"
   },
   "devDependencies": {

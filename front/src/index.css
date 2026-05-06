@@ -2,3 +2,34 @@
 html {
   scrollbar-gutter: stable;
 }
+
+/* Стилизация активного слайда в нижней галерее */
+.thumbnails-slider .swiper-slide {
+  height: auto;
+  opacity: 1 !important; /* Отменяем стандартное поведение swiper-thumbs если нужно */
+}
+
+/* Эффект нажатия и перетаскивания (Grab cursor) */
+.thumbnails-slider {
+  cursor: grab;
+}
+
+.thumbnails-slider:active {
+  cursor: grabbing;
+}
+
+/* Кастомные стрелки */
+.prev-photo, .next-photo {
+    color: #1e293b;
+    font-weight: bold;
+    user-select: none;
+}
+
+.prev-photo:after, .next-photo:after {
+    display: none; /* Убираем стандартные иконки Swiper если они мешают */
+}
+
+/* Плавный переход для рамки активного фото */
+.thumbnails-slider .border-blue-600 {
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
