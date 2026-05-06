@@ -232,9 +232,9 @@ function Catalog() {
           <button
             disabled={!prevPage}
             onClick={() => setCurrentPage(p => p - 1)}
-            className="px-8 py-4 border-2 border-gray-100 rounded-xl font-black uppercase text-[10px] hover:bg-gray-50 disabled:opacity-30 transition-all"
+            className="px-8 py-4 border-2 border-gray-100 rounded-xl font-black uppercase text-[10px] hover:bg-gray-300 disabled:opacity-30 transition-all"
           >Назад</button>
-          <span className="font-black text-gray-300 text-sm mx-2">{currentPage}</span>
+          <span className="font-black text-gray-600 text-sm mx-2">{currentPage}</span>
           <button
             disabled={!nextPage}
             onClick={() => setCurrentPage(p => p + 1)}
