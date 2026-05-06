@@ -4,14 +4,14 @@ import api from '../api';
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
-import { YMaps, Map, Placemark, RouteButton } from '@pbe/react-yandex-maps';
+import Map2GIS from '../components/Map2GIS'; // ← заменили импорт яндекса
 import { Helmet } from 'react-helmet-async';
 
 function CarDetail() {
   const { id } = useParams();
   const [car, setCar] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [coords, setCoords] = useState([55.751574, 37.573856]);
+  // ← убрали coords и geocodeAddress — Map2GIS делает это сам
   const [openGallery, setOpenGallery] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('specs');
@@ -24,46 +24,34 @@ function CarDetail() {
       .then(res => {
         setCar(res.data);
         setLoading(false);
-        if (res.data.address) geocodeAddress(res.data.address);
+        // ← убрали вызов geocodeAddress, он больше не нужен
       })
       .catch(() => setLoading(false));
   }, [id]);
 
-  const geocodeAddress = (address) => {
-    fetch(`https://geocode-maps.yandex.ru/1.x/?apikey=88726589-d978-43f1-9494-0130f40d6542&format=json&geocode=${encodeURIComponent(address)}`)
-      .then(res => res.json())
-      .then(data => {
-        const pos = data.response.GeoObjectCollection.featureMember[0]?.GeoObject?.Point?.pos;
-        if (pos) {
-          const [lon, lat] = pos.split(' ').map(Number);
-          setCoords([lat, lon]);
-        }
-      });
-  };
-
   if (loading || !car) {
-      return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-          {/* Пульсирующий логотип или кружок */}
-          <div className="w-16 h-16 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
-            Синхронизация данных...
-          </div>
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="w-16 h-16 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+        <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
+          Синхронизация данных...
         </div>
-      );
-    }
+      </div>
+    );
+  }
+
   const allPhotos = [car.image, ...car.images.map(img => img.image)].filter(Boolean);
   const slides = allPhotos.map(src => ({ src }));
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8">
-        {car && (
-            <Helmet>
-              <title>
-                {`${car.brand_display || car.brand} ${car.model_display || car.car_model_name} — Drive Select`}
-              </title>
-            </Helmet>
-        )}
+      {car && (
+        <Helmet>
+          <title>
+            {`${car.brand_display || car.brand} ${car.model_display || car.car_model_name} — Drive Select`}
+          </title>
+        </Helmet>
+      )}
 
       {/* ПАНЕЛЬ УПРАВЛЕНИЯ */}
       <div className="flex justify-between items-center mb-8">
@@ -83,7 +71,7 @@ function CarDetail() {
               Редактировать
             </button>
             <button
-              onClick={() => { if(window.confirm("Удалить этот автомобиль?")) api.delete(`cars/${id}/`).then(() => navigate('/catalog')) }}
+              onClick={() => { if (window.confirm("Удалить этот автомобиль?")) api.delete(`cars/${id}/`).then(() => navigate('/catalog')) }}
               className="px-6 py-2.5 border-2 border-red-500/10 text-red-500 text-[10px] font-black uppercase rounded-lg hover:bg-red-500 hover:text-white transition-all"
             >
               Удалить
@@ -125,10 +113,10 @@ function CarDetail() {
             <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-8">{car.year} год выпуска</p>
 
             <div className="mb-10">
-               <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest block mb-1">Стоимость</span>
-               <div className="text-5xl font-black text-slate-900 tracking-tighter">
-                 {Number(car.price).toLocaleString()} <span className="text-blue-600 text-3xl">₽</span>
-               </div>
+              <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest block mb-1">Стоимость</span>
+              <div className="text-5xl font-black text-slate-900 tracking-tighter">
+                {Number(car.price).toLocaleString()} <span className="text-blue-600 text-3xl">₽</span>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -138,14 +126,14 @@ function CarDetail() {
             </div>
 
             <div className="mt-10 pt-8 border-t border-gray-100 grid grid-cols-2 gap-4">
-               <div>
-                  <span className="text-[9px] font-black text-gray-300 uppercase block mb-1">Пробег</span>
-                  <span className="text-sm font-black text-slate-700">{car.mileage?.toLocaleString()} км</span>
-               </div>
-               <div>
-                  <span className="text-[9px] font-black text-gray-300 uppercase block mb-1">Город</span>
-                  <span className="text-sm font-black text-slate-700">{car.city || car.address?.split(',')[0] || 'Москва'}</span>
-               </div>
+              <div>
+                <span className="text-[9px] font-black text-gray-300 uppercase block mb-1">Пробег</span>
+                <span className="text-sm font-black text-slate-700">{car.mileage?.toLocaleString()} км</span>
+              </div>
+              <div>
+                <span className="text-[9px] font-black text-gray-300 uppercase block mb-1">Город</span>
+                <span className="text-sm font-black text-slate-700">{car.city || car.address?.split(',')[0] || 'Москва'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -172,20 +160,20 @@ function CarDetail() {
         <div className="max-w-4xl">
           {activeTab === 'specs' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-4">
-               {[
-                 { l: 'Марка', v: car.brand },
-                 { l: 'Модель', v: car.model_name || car.car_model?.name },
-                 { l: 'Год выпуска', v: car.year },
-                 { l: 'Пробег', v: `${car.mileage?.toLocaleString()} км` },
-                 { l: 'Город', v: car.city },
-                 { l: 'Адрес осмотра', v: car.address },
-                 { l: 'Тип продавца', v: 'Автосалон' },
-               ].map((s, i) => (
-                 <div key={i} className="flex justify-between items-center border-b border-gray-50 pb-3">
-                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{s.l}</span>
-                    <span className="text-slate-900 text-[11px] font-black uppercase">{s.v}</span>
-                 </div>
-               ))}
+              {[
+                { l: 'Марка', v: car.brand_display || car.brand },
+                { l: 'Модель', v: car.model_display || car.model_name || car.car_model?.name },
+                { l: 'Год выпуска', v: car.year },
+                { l: 'Пробег', v: `${car.mileage?.toLocaleString()} км` },
+                { l: 'Город', v: car.city },
+                { l: 'Адрес осмотра', v: car.address },
+                { l: 'Тип продавца', v: 'Автосалон' },
+              ].map((s, i) => (
+                <div key={i} className="flex justify-between items-center border-b border-gray-50 pb-3">
+                  <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">{s.l}</span>
+                  <span className="text-slate-900 text-[11px] font-black uppercase">{s.v}</span>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="prose prose-slate max-w-none pb-4">
@@ -197,29 +185,19 @@ function CarDetail() {
         </div>
       </div>
 
-      {/* КАРТА МЕСТОПОЛОЖЕНИЯ - ИСПРАВЛЕНО ДЛЯ ЗАПОЛНЕНИЯ БЛОКА */}
+      {/* КАРТА МЕСТОПОЛОЖЕНИЯ — 2ГИС */}
       <div className="mt-10">
-         <div className="text-center mb-6">
-            <h3 className="text-xl font-black uppercase tracking-[0.4em] text-slate-900">Место осмотра</h3>
-            <div className="h-1 w-16 bg-blue-600 mx-auto mt-2 rounded-full"></div>
-         </div>
-         {/* Контейнер карты с фиксированной высотой и overflow-hidden */}
-         <div className="h-[450px] w-full rounded-[40px] overflow-hidden border-[8px] border-white shadow-2xl shadow-gray-200 relative bg-gray-100">
-            <YMaps>
-              <Map
-                state={{ center: coords, zoom: 15 }}
-                width="100%"
-                height="100%"
-                className="w-full h-full absolute inset-0"
-                options={{
-                  autoFitToViewport: 'always', // Помогает карте адаптироваться к размеру
-                }}
-              >
-                <Placemark geometry={coords} />
-                <RouteButton options={{ float: 'right' }} />
-              </Map>
-            </YMaps>
-         </div>
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-black uppercase tracking-[0.4em] text-slate-900">Место осмотра</h3>
+          <div className="h-1 w-16 bg-blue-600 mx-auto mt-2 rounded-full"></div>
+        </div>
+        <div className="h-[450px] w-full rounded-[40px] overflow-hidden border-[8px] border-white shadow-2xl shadow-gray-200 relative bg-gray-100">
+          <Map2GIS
+            address={car.address}
+            city={car.city}
+            hotelName={`${car.brand_display || car.brand} ${car.model_display || car.car_model_name}`}
+          />
+        </div>
       </div>
 
       <Lightbox open={openGallery} close={() => setOpenGallery(false)} index={photoIndex} slides={slides} plugins={[Zoom]} />

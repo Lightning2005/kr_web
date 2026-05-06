@@ -10,11 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@pbe/react-yandex-maps": "^1.2.5",
+    "@2gis/mapgl": "^1.72.0",
     "axios": "^1.15.2",
+    "leaflet": "^1.9.4",
+    "or": "^0.2.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-helmet-async": "^3.0.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.14.2",
     "yet-another-react-lightbox": "^3.32.0"
   },

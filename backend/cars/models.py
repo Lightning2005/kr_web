@@ -55,7 +55,7 @@ class Car(models.Model):
     )
     address = models.CharField(
         max_length=255,
-        default="Москва, ул. Тверская, 1",
+        default="ул. Тверская, 1",
         verbose_name="Адрес осмотра"
     )
     description = models.TextField(blank=True, verbose_name="Описание")
