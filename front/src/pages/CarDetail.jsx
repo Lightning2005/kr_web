@@ -200,7 +200,21 @@ function CarDetail() {
         </div>
       </div>
 
-      <Lightbox open={openGallery} close={() => setOpenGallery(false)} index={photoIndex} slides={slides} plugins={[Zoom]} />
+      <Lightbox
+        open={openGallery}
+        close={() => setOpenGallery(false)}
+        index={photoIndex}
+        slides={slides}
+        plugins={[Zoom]}
+        zoom={{
+            maxZoomPixelRatio: 5, // Увеличивает в 5 раз от оригинального размера (было 1)
+            scrollToZoom: true,   // Позволяет зумить колесиком мыши
+            doubleTapDelay: 300,  // Задержка для двойного клика (зум по клику)
+            doubleClickDelay: 300,
+            doubleClickMaxStops: 2, // Сколько шагов зума при двойном клике
+            keyboardMoveStep: 50,   // Шаг перемещения стрелками в зуме
+            }}
+      />
     </div>
   );
 }
