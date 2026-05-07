@@ -108,7 +108,7 @@ function Home() {
       <section className="py-32 bg-white">
         <div className="max-w-[1440px] mx-auto px-10">
           <div className="flex justify-between items-center mb-16 border-b-4 border-gray-900 pb-8">
-            <h2 className="text-6xl font-black uppercase tracking-tighter text-gray-900">Свежий привоз</h2>
+            <h2 className="text-6xl font-black uppercase tracking-tighter text-gray-900">Новые поступления</h2>
             <Link to="/catalog" className="bg-gray-900 text-white py-4 px-8 rounded-xl font-black uppercase text-sm hover:bg-blue-600 transition-colors">
               Смотреть все →
             </Link>
