@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
+import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 
 function EditCar() {
@@ -53,16 +54,39 @@ function EditCar() {
   };
 
   // Удаление уже существующего фото из БД
-  const deleteExistingPhoto = async (photoId) => {
-    if (window.confirm("Удалить это фото навсегда?")) {
-      try {
-        await api.post(`cars/${id}/delete-image/`, { image_id: photoId });
-        setExistingPhotos(existingPhotos.filter(p => p.id !== photoId));
-      } catch (err) {
-        alert("Не удалось удалить фото");
-      }
-    }
-  };
+  const deleteExistingPhoto = (photoId) => {
+      toast((t) => (
+        <div className="flex flex-col gap-4">
+          <span className="text-center font-bold">Удалить это фото навсегда?</span>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  await api.post(`cars/${id}/delete-image/`, { image_id: photoId });
+                  setExistingPhotos(existingPhotos.filter(p => p.id !== photoId));
+                  toast.success("Фото удалено");
+                } catch (err) {
+                  toast.error("Не удалось удалить фото");
+                }
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+            >
+              Да, удалить
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: 5000,
+        position: 'top-center',
+      });
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

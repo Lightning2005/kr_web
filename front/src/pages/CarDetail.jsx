@@ -5,6 +5,7 @@ import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import Map2GIS from '../components/Map2GIS';
+import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 
 // Swiper imports
@@ -83,7 +84,38 @@ function CarDetail() {
               Редактировать
             </button>
             <button
-              onClick={() => { if (window.confirm("Удалить этот автомобиль?")) api.delete(`cars/${id}/`).then(() => navigate('/catalog')) }}
+              onClick={() => {
+                toast((t) => (
+                  <div className="flex flex-col gap-4">
+                    <span className="text-center font-bold">Удалить этот автомобиль?</span>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => {
+                          toast.dismiss(t.id);
+                          api.delete(`cars/${id}/`)
+                            .then(() => {
+                              toast.success("Автомобиль удалён");
+                              navigate('/catalog');
+                            })
+                            .catch(() => toast.error("Ошибка при удалении"));
+                        }}
+                        className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+                      >
+                        Да, удалить
+                      </button>
+                      <button
+                        onClick={() => toast.dismiss(t.id)}
+                        className="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+                      >
+                        Отмена
+                      </button>
+                    </div>
+                  </div>
+                ), {
+                  duration: 5000,
+                  position: 'top-center',
+                });
+              }}
               className="px-6 py-2.5 border-2 border-red-500/10 text-red-500 text-[10px] font-black uppercase rounded-lg hover:bg-red-500 hover:text-white transition-all"
             >
               Удалить

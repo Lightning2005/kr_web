@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 
 function Dashboard() {
@@ -55,23 +56,40 @@ function Dashboard() {
   const averagePrice = stats.total > 0 ? Math.round(stats.totalPrice / stats.total) : 0;
 
   const handleDelete = (id, e) => {
-    // e.stopPropagation() вызывается в месте клика кнопки, чтобы не сработал onClick строки
-    if (window.confirm("Вы уверены, что хотите удалить этот автомобиль?")) {
-      api.delete(`cars/${id}/`)
-        .then(() => {
-          const updatedCars = cars.filter(car => car.id !== id);
-          setCars(updatedCars);
-          setStats({
-            total: updatedCars.length,
-            totalPrice: updatedCars.reduce((acc, car) => acc + Number(car.price), 0),
-            maxPrice: updatedCars.length > 0 ? Math.max(...updatedCars.map(c => Number(c.price))) : 0
-          });
-        })
-        .catch((err) => {
-          alert(err.response?.status === 403 ? "У вас нет прав" : "Ошибка при удалении");
-        });
-    }
-  };
+      e.stopPropagation();
+
+      toast((t) => (
+        <div className="flex flex-col gap-4">
+          <span className="text-center font-bold">Удалить этот автомобиль?</span>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                // Сама логика удаления
+                api.delete(`cars/${id}/`)
+                  .then(() => {
+                    setCars(prev => prev.filter(car => car.id !== id));
+                    toast.success("Автомобиль удален");
+                  })
+                  .catch(() => toast.error("Ошибка при удалении"));
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+            >
+              Да, удалить
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      ), {
+        duration: 5000,
+        position: 'top-center',
+      });
+    };
 
   return (
     <div className="max-w-[1440px] mx-auto p-6 md:p-10">

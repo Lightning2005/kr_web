@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 
 function AddCar() {
@@ -37,11 +38,11 @@ function AddCar() {
 
         try {
           await api.post('cars/', data);
-          alert('Успешно опубликовано!');
+          toast.success('Успешно опубликовано!');
           navigate('/dashboard');
         } catch (err) {
           console.error("Server Response:", err.response?.data);
-          alert('Ошибка: ' + JSON.stringify(err.response?.data));
+          toast.error('Ошибка: ' + JSON.stringify(err.response?.data));
         }
       };
 
