@@ -6,10 +6,23 @@ from .filters import CarFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.decorators import action
 from rest_framework.response import Response
+# 1. Добавляем импорт пагинации
+from rest_framework.pagination import PageNumberPagination
+
+
+# 2. Создаем класс, который позволит фронтенду самому запрашивать нужное кол-во элементов
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 12  # Размер по умолчанию (как в settings.py)
+    page_size_query_param = 'page_size'  # Это позволит делать ?page_size=999
+    max_page_size = 1000
+
 
 class CarViewSet(viewsets.ModelViewSet):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
+    # 3. Указываем, что этот ViewSet использует наш новый класс пагинации
+    pagination_class = StandardResultsSetPagination
+
     filter_backends = [
         DjangoFilterBackend,
         filters.OrderingFilter,
@@ -24,13 +37,10 @@ class CarViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_update(self, serializer):
-        # Сначала сохраняем текстовые поля
         instance = serializer.save()
-        # Затем вызываем обработку новых картинок
         self._handle_images(instance)
 
     def _handle_images(self, instance):
-        # Получаем список файлов из ключа 'new_images'
         new_images = self.request.FILES.getlist('new_images')
         for image in new_images:
             CarImage.objects.create(car=instance, image=image)
@@ -45,15 +55,19 @@ class CarViewSet(viewsets.ModelViewSet):
         except CarImage.DoesNotExist:
             return Response({'error': 'Photo not found'}, status=404)
 
+
+# Остальные классы оставляем без изменений
 class BrandViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Brand.objects.all()
     serializer_class = BrandSerializer
+
 
 class CarModelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CarModel.objects.all()
     serializer_class = CarModelSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['brand']
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
