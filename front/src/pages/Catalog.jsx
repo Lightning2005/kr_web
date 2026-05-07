@@ -135,7 +135,7 @@ function Catalog() {
       {/* ПАНЕЛЬ ФИЛЬТРОВ */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 pb-8 border-b-2 border-gray-100">
         <div className="flex flex-col gap-2">
-           <span className="text-blue-600 font-black uppercase tracking-widest text-[10px]">Наш автопарк</span>
+           <span className="text-blue-600 font-black uppercase tracking-widest text-[12px]">Наш автопарк</span>
            <h1 className="text-5xl font-black text-gray-900 uppercase tracking-tighter">Каталог</h1>
         </div>
 

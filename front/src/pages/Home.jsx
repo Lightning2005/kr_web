@@ -54,7 +54,7 @@ function Home() {
       {/* ВЫБОР МАРКИ — Теперь кнопки рабочие и ведут в каталог */}
         <section className="py-16 bg-gray-50 border-b">
           <div className="max-w-[1440px] mx-auto px-10">
-            <h2 className="text-center text-gray-400 font-black uppercase tracking-widest mb-10 text-sm">Популярные марки</h2>
+            <h2 className="text-center text-black-600 font-black uppercase tracking-widest mb-10 text-sm">Популярные марки</h2>
             <div className="flex flex-wrap justify-center gap-4">
               {brands.map(brand => (
                 <Link
