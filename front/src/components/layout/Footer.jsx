@@ -19,7 +19,7 @@ function Footer() {
           {/* Левая колонка: Брендинг */}
           <div className="space-y-4">
             <Link to="/" className="text-2xl font-black tracking-tighter text-blue-600 uppercase">
-              АВТО<span className="text-gray-900">САЛОН</span>
+              DRIVE<span className="text-gray-900">SELECT</span>
             </Link>
             <p className="text-gray-600 text-[10px] font-bold uppercase tracking-[0.2em]">
               Курсовая работа • 2026

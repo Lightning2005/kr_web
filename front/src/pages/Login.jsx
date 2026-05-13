@@ -36,7 +36,7 @@ function Login() {
   return (
     <div className="flex items-center justify-center py-20 px-4">
         <Helmet>
-            <title>Вход в систему | Автосалон</title>
+            <title>Вход в систему | Drive Select</title>
         </Helmet>
 
       <form
