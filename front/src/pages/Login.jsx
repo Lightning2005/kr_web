@@ -45,7 +45,7 @@ function Login() {
       >
         <div className="text-center mb-8">
           <h2 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
-            <span className="text-blue-600">АВТО</span>САЛОН
+            <span className="text-blue-600">DRIVE</span>SELECT
           </h2>
           <p className="text-gray-500 mt-2 font-black text-[9px] uppercase tracking-[0.3em]">
             Вход для персонала
