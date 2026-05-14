@@ -29,7 +29,7 @@ function Login() {
         setError('Сервер не вернул токен доступа.');
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Неверный логин или пароль');
+      setError('Неверный логин или пароль');
     }
   };
 
@@ -63,7 +63,6 @@ function Login() {
             <label className="ml-4 font-black uppercase text-[9px] text-gray-400 tracking-widest">Логин</label>
             <input
               type="text"
-              placeholder="admin"
               className="w-full p-4 bg-[#eff4ff] border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold mt-1 text-gray-900 placeholder-gray-400"
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -74,7 +73,6 @@ function Login() {
             <label className="ml-4 font-black uppercase text-[9px] text-gray-400 tracking-widest">Пароль</label>
             <input
               type="password"
-              placeholder="•••••"
               className="w-full p-4 bg-[#eff4ff] border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold mt-1 text-gray-900 placeholder-gray-400"
               onChange={(e) => setPassword(e.target.value)}
               required
